@@ -60,3 +60,43 @@ class DatabaseManager:
         '''
         self.cursor.execute(query)
         self.cnx.commit()
+
+    def add_forum(self, name, base_url):
+        query = "INSERT INTO forums (name, base_url) VALUES (%s, %s)"
+        self.cursor.execute(query, (name, base_url))
+        self.cnx.commit()
+        return self.cursor.lastrowid
+
+    def edit_forum(self, id, name, base_url):
+        query = "UPDATE forums SET name = %s, base_url = %s WHERE id = %s"
+        self.cursor.execute(query, (name, base_url, id))
+        self.cnx.commit()
+
+    def delete_forum(self, id):
+        query = "DELETE FROM forums WHERE id = %s"
+        self.cursor.execute(query, (id,))
+        self.cnx.commit()
+
+
+if __name__ == "__main__":
+    # Initialize the database manager
+    manager = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
+
+    # Connect to the database
+    manager.connect()
+
+    # Create the tables
+    manager.create_tables()
+
+    # Add data to the forums table
+    forum_id = manager.add_forum("Example Forum", "https://example.com/forum")
+    print(f"Added forum with ID: {forum_id}")
+
+    # Edit data in the forums table
+    manager.edit_forum(forum_id, "Updated Example Forum", "https://example.com/forum")
+
+    # Remove data from the forums table
+    manager.delete_forum(forum_id)
+
+    # Close the connection
+    manager.close()

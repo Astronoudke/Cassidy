@@ -86,8 +86,6 @@ class ForumCollector(abc.ABC):
             last_message_items = message_items
             page_number += page_increment
 
-            print(page_url)
-
         return all_messages
 
     def return_discussion_info(self, discussion, title_class: str, date_class: str, last_post_time_class: str):
@@ -133,21 +131,22 @@ class ForumCollector(abc.ABC):
         return messages_dict
 
 
-psv_collector = ForumCollector(base_url="https://forum.psv.nl/index.php?forums/psv-1-selectie-technische-staf.11/",
-                               page_param="page-", start_page=1, page_increment=1)
+if __name__ == "__main__":
+    psv_collector = ForumCollector(base_url="https://forum.psv.nl/index.php?forums/psv-1-selectie-technische-staf.11/",
+                                page_param="page-", start_page=1, page_increment=1)
 
-psv_discussions = psv_collector.collect_discussion_items(discussion_class="structItem structItem--thread "
+    psv_discussions = psv_collector.collect_discussion_items(discussion_class="structItem structItem--thread "
                                                                           "js-inlineModContainer js-threadListItem",
-                                                         full_discussion_class=False)
+                                                             full_discussion_class=False)
 
-psv_info_discussions = psv_collector.return_info_all_discussions(discussion_items=psv_discussions, title_class="structItem-title",
+    psv_info_discussions = psv_collector.return_info_all_discussions(discussion_items=psv_discussions, title_class="structItem-title",
                                            date_class="structItem-startDate",
                                            last_post_time_class="structItem-latestDate u-dt")
 
-psv_messages = psv_collector.collect_message_items(discussion_link=psv_info_discussions[4]["link"],
+    psv_messages = psv_collector.collect_message_items(discussion_link=psv_info_discussions[4]["link"],
                                                    message_class="message message--post js-post js-inlineModContainer",
                                                    full_message_class=False)
 
-psv_info_messages = psv_collector.return_info_all_messages(message_items=psv_messages, text_class="bbWrapper", date_class="u-dt", author_class="username")
+    psv_info_messages = psv_collector.return_info_all_messages(message_items=psv_messages, text_class="bbWrapper", date_class="u-dt", author_class="username")
 
-print(psv_info_messages)
+    print(psv_info_messages)
