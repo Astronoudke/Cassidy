@@ -1,4 +1,5 @@
 import mysql.connector
+from ..A_DataCollectors.ForumCollector.forum_collector import ForumCollector
 
 
 class DatabaseManager:
