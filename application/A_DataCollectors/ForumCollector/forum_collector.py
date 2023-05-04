@@ -92,10 +92,13 @@ class ForumCollector(abc.ABC):
 
         return all_messages
 
-    def return_discussion_info(self, discussion, title_class: str, date_class: str, last_post_time_class: str):
+    def return_discussion_info(self, discussion, title_class: str, creation_date_class: str, views_class: str,
+                               replies_class: str, last_post_time_class: str):
         discussion_title = extract_text_by_class(discussion, title_class)
         discussion_link = extract_href_by_class(discussion, title_class)
-        discussion_date = extract_text_by_class(discussion, date_class)
+        discussion_creation_date = extract_text_by_class(discussion, creation_date_class)
+        discussion_views = extract_text_by_class(discussion, views_class)
+        discussion_replies = extract_text_by_class(discussion, replies_class)
         discussion_last_post_time = extract_text_by_class(discussion, last_post_time_class)
 
         discussion_link = create_discussion_url(self.base_url, discussion_link[0])
@@ -103,7 +106,9 @@ class ForumCollector(abc.ABC):
         return {
             "title": discussion_title,
             "link": discussion_link,
-            "creation date": discussion_date,
+            "creation date": discussion_creation_date,
+            "views": discussion_views,
+            "replies": discussion_replies,
             "last_post_time": discussion_last_post_time
         }
 
@@ -119,13 +124,14 @@ class ForumCollector(abc.ABC):
         }
 
     def return_info_all_discussions(self, discussion_class: str, full_discussion_class: bool, title_class: str,
-                                    date_class: str, last_post_time_class: str):
+                                    creation_date_class: str, views_class: str, replies_class: str,
+                                    last_post_time_class: str):
         discussions_dict = {}
         num = 1
         discussion_items = self.collect_discussion_items(discussion_class, full_discussion_class)
         for discussion in discussion_items:
-            discussions_dict[num] = self.return_discussion_info(discussion, title_class, date_class,
-                                                                last_post_time_class)
+            discussions_dict[num] = self.return_discussion_info(discussion, title_class, creation_date_class,
+                                                                views_class, replies_class, last_post_time_class)
             num += 1
         return discussions_dict
 
@@ -145,15 +151,15 @@ if __name__ == "__main__":
     psv_collector = ForumCollector(base_url="https://forum.psv.nl/index.php?forums/psv-1-selectie-technische-staf.11/",
                                 page_param="page-", start_page=1, page_increment=1)
 
-    psv_info_discussions = psv_collector.return_info_all_discussions(discussion_class="structItem structItem--thread "
-                                                                          "js-inlineModContainer js-threadListItem",
-                                                             full_discussion_class=False, title_class="structItem-title",
-                                           date_class="structItem-startDate",
-                                           last_post_time_class="structItem-latestDate u-dt")
+    psv_info_discussions = psv_collector.return_info_all_discussions(
+        discussion_class="structItem structItem--thread js-inlineModContainer js-threadListItem",
+        full_discussion_class=False, title_class="structItem-title", creation_date_class="structItem-startDate",
+        views_class="pairs pairs--justified structItem-minor", replies_class="pairs pairs--justified",
+        last_post_time_class="structItem-latestDate u-dt")
 
     psv_info_messages = psv_collector.return_info_all_messages(discussion_link=psv_info_discussions[5]["link"],
                                                                message_class="message message--post js-post js-inlineModContainer",
                                                                full_message_class=False,
                                                                text_class="bbWrapper", date_class="u-dt", author_class="username")
 
-    print(psv_info_messages)
+    print(psv_info_discussions)
