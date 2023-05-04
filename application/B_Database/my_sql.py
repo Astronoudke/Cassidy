@@ -93,7 +93,7 @@ class DatabaseManager:
         self.cnx.commit()
 
     def add_category(self, name):
-        query = "INSERT INTO forums (name) VALUES (%s)"
+        query = "INSERT INTO categories (name) VALUES (%s)"
         self.cursor.execute(query, (name,))
         self.cnx.commit()
         return self.cursor.lastrowid
@@ -116,7 +116,7 @@ class DatabaseManager:
 
     def add_discussion(self, name, link, creation_date, views, replies, last_post_time, forum_id):
         query = "INSERT INTO discussions (name, link, creation_date, views, replies, last_post_time, forum_id) " \
-                "VALUES (%s, %s, %s, %s, %s %s, %s)"
+                "VALUES (%s, %s, %s, %s, %s, %s, %s)"
         self.cursor.execute(query, (name, link, creation_date, views, replies, last_post_time, forum_id))
         self.cnx.commit()
         return self.cursor.lastrowid
@@ -177,8 +177,12 @@ if __name__ == "__main__":
     # Connect to the database
     manager.connect()
 
-    # Create the tables
-    manager.create_tables()
+    import datetime
+
+    a = datetime.datetime(2020, 2, 20)
+    # Add data to the discussions index
+    discussion_id = manager.add_discussion("Example Discussion", "https://example.com/forum/discussion", a, 100, 10, a, 3)
+    print(f"Added discussion with ID: {discussion_id}")
 
     # Close the connection
     manager.close()
