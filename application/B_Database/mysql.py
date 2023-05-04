@@ -20,6 +20,7 @@ class DatabaseManager:
         self.create_categories_table()
         self.create_forums_table()
         self.create_discussions_table()
+        self.create_users_table()
         self.create_messages_table()
 
     def create_categories_table(self):
@@ -61,6 +62,18 @@ class DatabaseManager:
         self.cursor.execute(query)
         self.cnx.commit()
 
+    def create_users_table(self):
+        query = '''
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(255),
+            forum_id INT,
+            FOREIGN KEY (forum_id) REFERENCES forums(id)
+        )
+        '''
+        self.cursor.execute(query)
+        self.cnx.commit()
+
     def create_messages_table(self):
         query = '''
         CREATE TABLE IF NOT EXISTS messages (
@@ -68,7 +81,9 @@ class DatabaseManager:
             text TEXT,
             date TIMESTAMP,
             author VARCHAR(255),
+            user_id INT,
             discussion_id INT,
+            FOREIGN KEY (user_id) REFERENCES users(id),
             FOREIGN KEY (discussion_id) REFERENCES discussions(id)
         )
         '''
@@ -105,11 +120,8 @@ if __name__ == "__main__":
     # Connect to the database
     manager.connect()
 
-    category_id = manager.add_category("Energy")
-
-    # Add data to the forums table
-    forum_id = manager.add_forum("Example Forum", "https://example.com/forum", category_id)
-    print(f"Added forum with ID: {forum_id}")
+    # Create the tables
+    manager.create_tables()
 
     # Close the connection
     manager.close()
