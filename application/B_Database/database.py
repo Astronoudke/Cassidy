@@ -1,5 +1,4 @@
 import mysql.connector
-from ..A_DataCollectors.ForumCollector.forum_collector import ForumCollector
 
 
 class DatabaseManager:
@@ -18,16 +17,30 @@ class DatabaseManager:
         self.cnx.close()
 
     def create_tables(self):
+        self.create_categories_table()
         self.create_forums_table()
         self.create_discussions_table()
         self.create_messages_table()
+
+    def create_categories_table(self):
+        query = '''
+        CREATE TABLE IF NOT EXISTS categories (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255)
+        )
+        '''
+        self.cursor.execute(query)
+        self.cnx.commit()
 
     def create_forums_table(self):
         query = '''
         CREATE TABLE IF NOT EXISTS forums (
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255),
-            base_url VARCHAR(255)
+            base_url VARCHAR(255),
+            description VARCHAR(400),
+            category_id INT,
+            FOREIGN KEY (category_id) REFERENCES categories(id)
         )
         '''
         self.cursor.execute(query)
@@ -62,9 +75,15 @@ class DatabaseManager:
         self.cursor.execute(query)
         self.cnx.commit()
 
-    def add_forum(self, name, base_url):
-        query = "INSERT INTO forums (name, base_url) VALUES (%s, %s)"
-        self.cursor.execute(query, (name, base_url))
+    def add_category(self, name):
+        query = "INSERT INTO forums (name) VALUES (%s)"
+        self.cursor.execute(query, (name,))
+        self.cnx.commit()
+        return self.cursor.lastrowid
+
+    def add_forum(self, name, base_url, category_id):
+        query = "INSERT INTO forums (name, base_url, category_id) VALUES (%s, %s, %s)"
+        self.cursor.execute(query, (name, base_url, category_id))
         self.cnx.commit()
         return self.cursor.lastrowid
 
@@ -86,18 +105,11 @@ if __name__ == "__main__":
     # Connect to the database
     manager.connect()
 
-    # Create the tables
-    manager.create_tables()
+    category_id = manager.add_category("Energy")
 
     # Add data to the forums table
-    forum_id = manager.add_forum("Example Forum", "https://example.com/forum")
+    forum_id = manager.add_forum("Example Forum", "https://example.com/forum", category_id)
     print(f"Added forum with ID: {forum_id}")
-
-    # Edit data in the forums table
-    manager.edit_forum(forum_id, "Updated Example Forum", "https://example.com/forum")
-
-    # Remove data from the forums table
-    manager.delete_forum(forum_id)
 
     # Close the connection
     manager.close()

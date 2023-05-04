@@ -23,6 +23,9 @@ class ForumCollector(abc.ABC):
         self.has_url_suffix = has_url_suffix
         self.url_suffix = url_suffix
 
+    def add_forum_to_database(self, description: str):
+        pass
+
     def collect_discussion_items(self, discussion_class: str, full_discussion_class: bool):
         all_discussions = []
         page_number = self.start_page
@@ -71,6 +74,7 @@ class ForumCollector(abc.ABC):
             else:
                 page_url = discussion_link + page_param + str(page_number)
 
+            print(page_url)
             forum_url = BeautifulSoup(requests.get(page_url).content, 'html.parser')
 
             if full_message_class:
@@ -114,17 +118,23 @@ class ForumCollector(abc.ABC):
             "author": message_author
         }
 
-    def return_info_all_discussions(self, discussion_items, title_class: str, date_class: str, last_post_time_class: str):
+    def return_info_all_discussions(self, discussion_class: str, full_discussion_class: bool, title_class: str,
+                                    date_class: str, last_post_time_class: str):
         discussions_dict = {}
         num = 1
+        discussion_items = self.collect_discussion_items(discussion_class, full_discussion_class)
         for discussion in discussion_items:
-            discussions_dict[num] = self.return_discussion_info(discussion, title_class, date_class, last_post_time_class)
+            discussions_dict[num] = self.return_discussion_info(discussion, title_class, date_class,
+                                                                last_post_time_class)
             num += 1
         return discussions_dict
 
-    def return_info_all_messages(self, message_items, text_class: str, date_class: str, author_class: str):
+    def return_info_all_messages(self, discussion_link: str, message_class: str, full_message_class: bool,
+                                 text_class: str, date_class: str, author_class: str):
         messages_dict = {}
         num = 1
+        message_items = self.collect_message_items(discussion_link=discussion_link,
+                                                   message_class=message_class, full_message_class=full_message_class)
         for message in message_items:
             messages_dict[num] = self.return_message_info(message, text_class, date_class, author_class)
             num += 1
@@ -135,18 +145,15 @@ if __name__ == "__main__":
     psv_collector = ForumCollector(base_url="https://forum.psv.nl/index.php?forums/psv-1-selectie-technische-staf.11/",
                                 page_param="page-", start_page=1, page_increment=1)
 
-    psv_discussions = psv_collector.collect_discussion_items(discussion_class="structItem structItem--thread "
+    psv_info_discussions = psv_collector.return_info_all_discussions(discussion_class="structItem structItem--thread "
                                                                           "js-inlineModContainer js-threadListItem",
-                                                             full_discussion_class=False)
-
-    psv_info_discussions = psv_collector.return_info_all_discussions(discussion_items=psv_discussions, title_class="structItem-title",
+                                                             full_discussion_class=False, title_class="structItem-title",
                                            date_class="structItem-startDate",
                                            last_post_time_class="structItem-latestDate u-dt")
 
-    psv_messages = psv_collector.collect_message_items(discussion_link=psv_info_discussions[4]["link"],
-                                                   message_class="message message--post js-post js-inlineModContainer",
-                                                   full_message_class=False)
-
-    psv_info_messages = psv_collector.return_info_all_messages(message_items=psv_messages, text_class="bbWrapper", date_class="u-dt", author_class="username")
+    psv_info_messages = psv_collector.return_info_all_messages(discussion_link=psv_info_discussions[5]["link"],
+                                                               message_class="message message--post js-post js-inlineModContainer",
+                                                               full_message_class=False,
+                                                               text_class="bbWrapper", date_class="u-dt", author_class="username")
 
     print(psv_info_messages)
