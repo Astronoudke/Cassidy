@@ -51,9 +51,11 @@ class DatabaseManager:
         query = '''
         CREATE TABLE IF NOT EXISTS discussions (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255),
+            name VARCHAR(255),
             link VARCHAR(255),
             creation_date DATE,
+            views INT,
+            replies INT,
             last_post_time TIMESTAMP,
             forum_id INT,
             FOREIGN KEY (forum_id) REFERENCES forums(id)
@@ -109,6 +111,61 @@ class DatabaseManager:
 
     def delete_forum(self, id):
         query = "DELETE FROM forums WHERE id = %s"
+        self.cursor.execute(query, (id,))
+        self.cnx.commit()
+
+    def add_discussion(self, name, link, creation_date, views, replies, last_post_time, forum_id):
+        query = "INSERT INTO discussions (name, link, creation_date, views, replies, last_post_time, forum_id) " \
+                "VALUES (%s, %s, %s, %s, %s %s, %s)"
+        self.cursor.execute(query, (name, link, creation_date, views, replies, last_post_time, forum_id))
+        self.cnx.commit()
+        return self.cursor.lastrowid
+
+    def edit_discussion(self, id, name, link, creation_date, views, replies, last_post_time):
+        query = "UPDATE discussions SET name = %s, link = %s, creation_date = %s, views = %s, replies = %s, " \
+                "last_post_time = %s WHERE id = %s"
+        self.cursor.execute(query, (name, link, creation_date, views, replies, last_post_time, id))
+        self.cnx.commit()
+
+    def select_discussion(self, id):
+        query = "SELECT * FROM discussions WHERE id = %s"
+        self.cursor.execute(query, (id,))
+        return self.cursor.fetchone()
+
+    def delete_discussion(self, id):
+        query = "DELETE FROM discussions WHERE id = %s"
+        self.cursor.execute(query, (id,))
+        self.cnx.commit()
+
+    def add_message(self, text, creation_date, user_id, discussion_id):
+        query = "INSERT INTO messages (text, creation_date, user_id, discussion_id) VALUES (%s, %s, %s, %s)"
+        self.cursor.execute(query, (text, creation_date, user_id, discussion_id))
+        self.cnx.commit()
+        return self.cursor.lastrowid
+
+    def edit_message(self, id, text):
+        query = "UPDATE messages SET text = %s WHERE id = %s"
+        self.cursor.execute(query, (text, id))
+        self.cnx.commit()
+
+    def delete_message(self, id):
+        query = "DELETE FROM messages WHERE id = %s"
+        self.cursor.execute(query, (id,))
+        self.cnx.commit()
+
+    def add_user(self, username, forum_id):
+        query = "INSERT INTO users (username, forum_id) VALUES (%s, %s)"
+        self.cursor.execute(query, (username, forum_id))
+        self.cnx.commit()
+        return self.cursor.lastrowid
+
+    def edit_user(self, id, username):
+        query = "UPDATE users SET username = %s WHERE id = %s"
+        self.cursor.execute(query, (username, id))
+        self.cnx.commit()
+
+    def delete_user(self, id):
+        query = "DELETE FROM users WHERE id = %s"
         self.cursor.execute(query, (id,))
         self.cnx.commit()
 

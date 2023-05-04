@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from functions import extract_text_by_class, extract_href_by_class, create_discussion_url
+from ...B_Database.my_sql import DatabaseManager
 
 
 class ForumCollector(abc.ABC):
@@ -22,9 +23,6 @@ class ForumCollector(abc.ABC):
         self.page_increment = page_increment
         self.has_url_suffix = has_url_suffix
         self.url_suffix = url_suffix
-
-    def add_forum_to_database(self, description: str):
-        pass
 
     def collect_discussion_items(self, discussion_class: str, full_discussion_class: bool):
         all_discussions = []
@@ -54,43 +52,49 @@ class ForumCollector(abc.ABC):
 
         return all_discussions
 
-    def collect_message_items(self, discussion_link: str, message_class: str, full_message_class: bool,
-                              page_param: str = None, start_page: str = None, page_increment: str = None):
+    def collect_message_items(self, message_class: str, full_message_class: bool,
+                              page_param: str = None, start_page: str = None, page_increment: str = None,
+                              via_link: bool = False, discussion_link: str = None, discussion_id: int = None):
+        if via_link:
+            if page_param is None:
+                page_param = self.page_param
+            if start_page is None:
+                start_page = self.start_page
+            if page_increment is None:
+                page_increment = self.page_increment
 
-        if page_param is None:
-            page_param = self.page_param
-        if start_page is None:
-            start_page = self.start_page
-        if page_increment is None:
-            page_increment = self.page_increment
+            all_messages = []
+            page_number = start_page
+            last_message_items = None
 
-        all_messages = []
-        page_number = start_page
-        last_message_items = None
+            while True:
+                if self.has_url_suffix:
+                    page_url = discussion_link + page_param + str(page_number) + self.url_suffix
+                else:
+                    page_url = discussion_link + page_param + str(page_number)
 
-        while True:
-            if self.has_url_suffix:
-                page_url = discussion_link + page_param + str(page_number) + self.url_suffix
-            else:
-                page_url = discussion_link + page_param + str(page_number)
+                print(page_url)
+                forum_url = BeautifulSoup(requests.get(page_url).content, 'html.parser')
 
-            print(page_url)
-            forum_url = BeautifulSoup(requests.get(page_url).content, 'html.parser')
+                if full_message_class:
+                    message_items = forum_url.find_all(class_=lambda x: x == message_class)
+                else:
+                    message_items = forum_url.find_all(class_=lambda x: x and x.startswith(message_class))
 
-            if full_message_class:
-                message_items = forum_url.find_all(class_=lambda x: x == message_class)
-            else:
-                message_items = forum_url.find_all(class_=lambda x: x and x.startswith(message_class))
+                # Check if the current list of items is the same as the previous list of items
+                if last_message_items and message_items == last_message_items:
+                    break
 
-            # Check if the current list of items is the same as the previous list of items
-            if last_message_items and message_items == last_message_items:
-                break
+                all_messages.extend(message_items)
+                last_message_items = message_items
+                page_number += page_increment
 
-            all_messages.extend(message_items)
-            last_message_items = message_items
-            page_number += page_increment
+            return all_messages
 
-        return all_messages
+        else:
+            db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
+            db.connect()
+            db.select_discussion(discussion_id)
 
     def return_discussion_info(self, discussion, title_class: str, creation_date_class: str, views_class: str,
                                replies_class: str, last_post_time_class: str):
@@ -112,7 +116,7 @@ class ForumCollector(abc.ABC):
             "last_post_time": discussion_last_post_time
         }
 
-    def return_message_info(self, message, text_class: str, date_class: str, author_class: str):
+    def return_message_info(self, message, text_class: str, date_class: str, author_class: str, discussion_id: int):
         message_text = extract_text_by_class(message, text_class)
         message_date = extract_text_by_class(message, date_class)
         message_author = extract_text_by_class(message, author_class)
@@ -120,7 +124,8 @@ class ForumCollector(abc.ABC):
         return {
             "text": message_text,
             "date": message_date,
-            "author": message_author
+            "author": message_author,
+            "discussion_id": discussion_id
         }
 
     def return_info_all_discussions(self, discussion_class: str, full_discussion_class: bool, title_class: str,
@@ -135,14 +140,14 @@ class ForumCollector(abc.ABC):
             num += 1
         return discussions_dict
 
-    def return_info_all_messages(self, discussion_link: str, message_class: str, full_message_class: bool,
+    def return_info_all_messages(self, discussion_id: int, message_class: str, full_message_class: bool,
                                  text_class: str, date_class: str, author_class: str):
         messages_dict = {}
         num = 1
-        message_items = self.collect_message_items(discussion_link=discussion_link,
-                                                   message_class=message_class, full_message_class=full_message_class)
+        message_items = self.collect_message_items(discussion_id=discussion_id, message_class=message_class,
+                                                   full_message_class=full_message_class)
         for message in message_items:
-            messages_dict[num] = self.return_message_info(message, text_class, date_class, author_class)
+            messages_dict[num] = self.return_message_info(message, text_class, date_class, author_class, discussion_id)
             num += 1
         return messages_dict
 
@@ -157,9 +162,9 @@ if __name__ == "__main__":
         views_class="pairs pairs--justified structItem-minor", replies_class="pairs pairs--justified",
         last_post_time_class="structItem-latestDate u-dt")
 
-    psv_info_messages = psv_collector.return_info_all_messages(discussion_link=psv_info_discussions[5]["link"],
+    psv_info_messages = psv_collector.return_info_all_messages(discussion_id=1,
                                                                message_class="message message--post js-post js-inlineModContainer",
                                                                full_message_class=False,
-                                                               text_class="bbWrapper", date_class="u-dt", author_class="username")
+                                                               text_class="bbWrapper", date_class="u-dt", author_class="username",)
 
     print(psv_info_discussions)
