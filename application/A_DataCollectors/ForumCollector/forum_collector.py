@@ -2,8 +2,13 @@ import abc
 import requests
 from bs4 import BeautifulSoup
 
-from functions import extract_text_by_class, extract_href_by_class, create_discussion_url
-from ...B_Database.my_sql import DatabaseManager
+from .functions import extract_text_by_class, extract_href_by_class, create_discussion_url, clean_data
+
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+from B_Database.my_sql import DatabaseManager
 
 
 class ForumCollector(abc.ABC):
@@ -24,7 +29,7 @@ class ForumCollector(abc.ABC):
         self.has_url_suffix = has_url_suffix
         self.url_suffix = url_suffix
 
-    def collect_discussion_items(self, discussion_class: str, full_discussion_class: bool):
+    def scrape_discussions_from_forum(self, discussion_class: str, full_discussion_class: bool):
         all_discussions = []
         page_number = self.start_page
         last_discussion_items = None
@@ -52,57 +57,64 @@ class ForumCollector(abc.ABC):
 
         return all_discussions
 
-    def collect_message_items(self, message_class: str, full_message_class: bool,
+    def scrape_discussion_from_forum_by_link(self, discussion_link: str, full_discussion_class: bool):
+        pass
+
+    def scrape_messages_from_discussion(self, message_class: str, full_message_class: bool,
                               page_param: str = None, start_page: str = None, page_increment: str = None,
                               via_link: bool = False, discussion_link: str = None, discussion_id: int = None):
-        if via_link:
-            if page_param is None:
-                page_param = self.page_param
-            if start_page is None:
-                start_page = self.start_page
-            if page_increment is None:
-                page_increment = self.page_increment
-
-            all_messages = []
-            page_number = start_page
-            last_message_items = None
-
-            while True:
-                if self.has_url_suffix:
-                    page_url = discussion_link + page_param + str(page_number) + self.url_suffix
-                else:
-                    page_url = discussion_link + page_param + str(page_number)
-
-                print(page_url)
-                forum_url = BeautifulSoup(requests.get(page_url).content, 'html.parser')
-
-                if full_message_class:
-                    message_items = forum_url.find_all(class_=lambda x: x == message_class)
-                else:
-                    message_items = forum_url.find_all(class_=lambda x: x and x.startswith(message_class))
-
-                # Check if the current list of items is the same as the previous list of items
-                if last_message_items and message_items == last_message_items:
-                    break
-
-                all_messages.extend(message_items)
-                last_message_items = message_items
-                page_number += page_increment
-
-            return all_messages
-
-        else:
+        if not via_link:
             db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
             db.connect()
-            db.select_discussion(discussion_id)
+            # messages is a list containing tuples for each message, with the contents of each message item
+            # in the order of (id, text, date, user_id, discussion_id)
+            discussion = db.select_discussion(discussion_id)
+            db.close()
 
-    def return_discussion_info(self, discussion, title_class: str, creation_date_class: str, views_class: str,
+            discussion_link = discussion["link"]
+
+        if page_param is None:
+            page_param = self.page_param
+        if start_page is None:
+            start_page = self.start_page
+        if page_increment is None:
+            page_increment = self.page_increment
+
+        all_messages = []
+        page_number = start_page
+        last_message_items = None
+
+        while True:
+            if self.has_url_suffix:
+                page_url = discussion_link + page_param + str(page_number) + self.url_suffix
+            else:
+                page_url = discussion_link + page_param + str(page_number)
+
+            print(page_url)
+            forum_url = BeautifulSoup(requests.get(page_url).content, 'html.parser')
+
+            if full_message_class:
+                message_items = forum_url.find_all(class_=lambda x: x == message_class)
+            else:
+                message_items = forum_url.find_all(class_=lambda x: x and x.startswith(message_class))
+
+            # Check if the current list of items is the same as the previous list of items
+            if last_message_items and message_items == last_message_items:
+                break
+
+            all_messages.extend(message_items)
+            last_message_items = message_items
+            page_number += page_increment
+
+        return {"messages": all_messages, "discussion_id": discussion_id, "discussion_link": discussion_link}
+
+    def return_discussion_info_from_scraped(self, discussion, title_class: str, creation_date_class: str, views_class: str,
                                replies_class: str, last_post_time_class: str):
         discussion_title = extract_text_by_class(discussion, title_class)
         discussion_link = extract_href_by_class(discussion, title_class)
         discussion_creation_date = extract_text_by_class(discussion, creation_date_class)
-        discussion_views = extract_text_by_class(discussion, views_class)
-        discussion_replies = extract_text_by_class(discussion, replies_class)
+        discussion_views = clean_data(extract_text_by_class(discussion, views_class))
+        discussion_replies = clean_data(extract_text_by_class(discussion, replies_class))
         discussion_last_post_time = extract_text_by_class(discussion, last_post_time_class)
 
         discussion_link = create_discussion_url(self.base_url, discussion_link[0])
@@ -116,7 +128,7 @@ class ForumCollector(abc.ABC):
             "last_post_time": discussion_last_post_time
         }
 
-    def return_message_info(self, message, text_class: str, date_class: str, author_class: str, discussion_id: int):
+    def return_message_info_from_scraped(self, message, text_class: str, date_class: str, author_class: str, discussion_id: int):
         message_text = extract_text_by_class(message, text_class)
         message_date = extract_text_by_class(message, date_class)
         message_author = extract_text_by_class(message, author_class)
@@ -128,43 +140,37 @@ class ForumCollector(abc.ABC):
             "discussion_id": discussion_id
         }
 
-    def return_info_all_discussions(self, discussion_class: str, full_discussion_class: bool, title_class: str,
+    def return_info_all_discussions_from_scraped(self, discussion_class: str, full_discussion_class: bool, title_class: str,
                                     creation_date_class: str, views_class: str, replies_class: str,
                                     last_post_time_class: str):
         discussions_dict = {}
         num = 1
-        discussion_items = self.collect_discussion_items(discussion_class, full_discussion_class)
+        discussion_items = self.scrape_discussions_from_forum(discussion_class, full_discussion_class)
         for discussion in discussion_items:
-            discussions_dict[num] = self.return_discussion_info(discussion, title_class, creation_date_class,
+            discussions_dict[num] = self.return_discussion_info_from_scraped(discussion, title_class, creation_date_class,
                                                                 views_class, replies_class, last_post_time_class)
             num += 1
         return discussions_dict
 
-    def return_info_all_messages(self, discussion_id: int, message_class: str, full_message_class: bool,
-                                 text_class: str, date_class: str, author_class: str):
+    def return_info_all_messages_from_scraped(self, discussion_id: int, message_class: str, full_message_class: bool,
+                                 text_class: str, date_class: str, author_class: str, store_in_database: bool = False):
         messages_dict = {}
         num = 1
-        message_items = self.collect_message_items(discussion_id=discussion_id, message_class=message_class,
-                                                   full_message_class=full_message_class)
+        message_items = self.scrape_messages_from_discussion(discussion_id=discussion_id, message_class=message_class,
+                                                   full_message_class=full_message_class, via_link=False)["messages"]
         for message in message_items:
-            messages_dict[num] = self.return_message_info(message, text_class, date_class, author_class, discussion_id)
+            messages_dict[num] = self.return_message_info_from_scraped(message, text_class, date_class, author_class, discussion_id)
             num += 1
+
+        if store_in_database:
+            db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
+            db.connect()
+            # messages is a list containing tuples for each message, with the contents of each message item
+            # in the order of (id, text, date, user_id, discussion_id)
+            for message in messages_dict.values():
+                db.add_message(message["discussion_id"], message["text"], message["date"], message["author"])
+            db.close()
+
         return messages_dict
 
 
-if __name__ == "__main__":
-    psv_collector = ForumCollector(base_url="https://forum.psv.nl/index.php?forums/psv-1-selectie-technische-staf.11/",
-                                page_param="page-", start_page=1, page_increment=1)
-
-    psv_info_discussions = psv_collector.return_info_all_discussions(
-        discussion_class="structItem structItem--thread js-inlineModContainer js-threadListItem",
-        full_discussion_class=False, title_class="structItem-title", creation_date_class="structItem-startDate",
-        views_class="pairs pairs--justified structItem-minor", replies_class="pairs pairs--justified",
-        last_post_time_class="structItem-latestDate u-dt")
-
-    psv_info_messages = psv_collector.return_info_all_messages(discussion_id=1,
-                                                               message_class="message message--post js-post js-inlineModContainer",
-                                                               full_message_class=False,
-                                                               text_class="bbWrapper", date_class="u-dt", author_class="username",)
-
-    print(psv_info_discussions)

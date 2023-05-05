@@ -33,3 +33,22 @@ def create_discussion_url(base_url: str, relative_url: str) -> str:
     :return: The full URL of the discussion.
     """
     return urljoin(base_url, relative_url)
+
+
+def convert_to_int(value):
+    multiplier = 1
+
+    if 'K' in value:
+        multiplier = 1000
+        value = value.replace('K', '')
+    elif 'M' in value:
+        multiplier = 1000000
+        value = value.replace('M', '')
+
+    return int(float(value) * multiplier)
+
+
+def clean_data(data):
+    value = data.split('\n')[-1]
+    cleaned_value = convert_to_int(value)
+    return cleaned_value

@@ -81,8 +81,7 @@ class DatabaseManager:
         CREATE TABLE IF NOT EXISTS messages (
             id INT AUTO_INCREMENT PRIMARY KEY,
             text TEXT,
-            date TIMESTAMP,
-            author VARCHAR(255),
+            creation_date TIMESTAMP,
             user_id INT,
             discussion_id INT,
             FOREIGN KEY (user_id) REFERENCES users(id),
@@ -130,7 +129,20 @@ class DatabaseManager:
     def select_discussion(self, id):
         query = "SELECT * FROM discussions WHERE id = %s"
         self.cursor.execute(query, (id,))
-        return self.cursor.fetchone()
+        result = self.cursor.fetchone()
+        if result:
+            return {
+                'id': result[0],
+                'name': result[1],
+                'link': result[2],
+                'creation_date': result[3],
+                'views': result[4],
+                'replies': result[5],
+                'last_post_time': result[6],
+                'forum_id': result[7]
+            }
+        else:
+            return None
 
     def delete_discussion(self, id):
         query = "DELETE FROM discussions WHERE id = %s"
@@ -147,6 +159,26 @@ class DatabaseManager:
         query = "UPDATE messages SET text = %s WHERE id = %s"
         self.cursor.execute(query, (text, id))
         self.cnx.commit()
+
+    def select_message(self, id):
+        query = "SELECT * FROM messages WHERE id = %s"
+        self.cursor.execute(query, (id,))
+        return self.cursor.fetchone()
+
+    def select_messages_by_discussion_id(self, discussion_id):
+        query = "SELECT * FROM messages WHERE discussion_id = %s"
+        values = (discussion_id,)
+        self.cursor.execute(query, values)
+        messages = {}
+        for row in self.cursor.fetchall():
+            message = {
+                'text': row[1],
+                'creation_date': row[2],
+                'user_id': row[3],
+                'discussion_id': row[4]
+            }
+            messages[row[0]] = message
+        return messages
 
     def delete_message(self, id):
         query = "DELETE FROM messages WHERE id = %s"
@@ -180,9 +212,8 @@ if __name__ == "__main__":
     import datetime
 
     a = datetime.datetime(2020, 2, 20)
+
     # Add data to the discussions index
-    discussion_id = manager.add_discussion("Example Discussion", "https://example.com/forum/discussion", a, 100, 10, a, 3)
-    print(f"Added discussion with ID: {discussion_id}")
 
     # Close the connection
     manager.close()
