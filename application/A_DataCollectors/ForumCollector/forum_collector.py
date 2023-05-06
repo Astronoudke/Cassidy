@@ -12,8 +12,8 @@ from B_Database.my_sql import DatabaseManager
 
 
 class ForumCollector(abc.ABC):
-    def __init__(self, base_url: str, page_param: str, start_page: int, page_increment: int,
-                 has_url_suffix: bool = False, url_suffix: str = None):
+    def __init__(self, identification: int, name: str, base_url: str, description: str, category_id: int,
+                 page_param: str, start_page: int, page_increment: int, has_url_suffix: bool = False, url_suffix: str = None):
         """
         :param base_url: The base URL of the forum.
         :param page_param: The URL parameter used to specify the page number.
@@ -22,7 +22,12 @@ class ForumCollector(abc.ABC):
         :param has_url_suffix: Whether the URL has a suffix at the end.
         :param url_suffix: The suffix of the URL. This might be used at the end of the URL (such as .html).
         """
+        self.identification = identification
+        self.name = name
         self.base_url = base_url
+        self.description = description
+        self.category_id = category_id
+
         self.page_param = page_param
         self.start_page = start_page
         self.page_increment = page_increment
@@ -57,18 +62,13 @@ class ForumCollector(abc.ABC):
 
         return all_discussions
 
-    def scrape_discussion_from_forum_by_link(self, discussion_link: str, full_discussion_class: bool):
-        pass
-
     def scrape_messages_from_discussion(self, message_class: str, full_message_class: bool,
                               page_param: str = None, start_page: str = None, page_increment: str = None,
                               via_link: bool = False, discussion_link: str = None, discussion_id: int = None):
         if not via_link:
             db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
             db.connect()
-            # messages is a list containing tuples for each message, with the contents of each message item
-            # in the order of (id, text, date, user_id, discussion_id)
-            discussion = db.select_discussion(discussion_id)
+            discussion = db.select_discussion(via_id=True, id=discussion_id)
             db.close()
 
             discussion_link = discussion["link"]
@@ -108,10 +108,10 @@ class ForumCollector(abc.ABC):
 
         return {"messages": all_messages, "discussion_id": discussion_id, "discussion_link": discussion_link}
 
-    def return_discussion_info_from_scraped(self, discussion, title_class: str, creation_date_class: str, views_class: str,
+    def return_discussion_info_from_scraped(self, discussion, name_class: str, creation_date_class: str, views_class: str,
                                replies_class: str, last_post_time_class: str):
-        discussion_title = extract_text_by_class(discussion, title_class)
-        discussion_link = extract_href_by_class(discussion, title_class)
+        discussion_name = extract_text_by_class(discussion, name_class)
+        discussion_link = extract_href_by_class(discussion, name_class)
         discussion_creation_date = extract_text_by_class(discussion, creation_date_class)
         discussion_views = clean_data(extract_text_by_class(discussion, views_class))
         discussion_replies = clean_data(extract_text_by_class(discussion, replies_class))
@@ -120,13 +120,28 @@ class ForumCollector(abc.ABC):
         discussion_link = create_discussion_url(self.base_url, discussion_link[0])
 
         return {
-            "title": discussion_title,
+            "name": discussion_name,
             "link": discussion_link,
             "creation date": discussion_creation_date,
             "views": discussion_views,
             "replies": discussion_replies,
-            "last_post_time": discussion_last_post_time
+            "last_post_time": discussion_last_post_time,
+            "forum_id": self.identification
         }
+
+    def store_discussion_in_database(self, discussion):
+        db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
+        db.connect()
+        db.add_discussion(
+            discussion["name"],
+            discussion["link"],
+            discussion["creation date"],
+            discussion["views"],
+            discussion["replies"],
+            discussion["last_post_time"],
+            discussion["forum_id"]
+        )
+        db.close()
 
     def return_message_info_from_scraped(self, message, text_class: str, date_class: str, author_class: str, discussion_id: int):
         message_text = extract_text_by_class(message, text_class)
@@ -139,6 +154,17 @@ class ForumCollector(abc.ABC):
             "author": message_author,
             "discussion_id": discussion_id
         }
+
+    def store_message_in_database(self, message, user_id: int):
+        db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
+        db.connect()
+        db.add_message(
+            message["text"],
+            message["date"],
+            user_id,
+            message["discussion_id"]
+        )
+        db.close()
 
     def return_info_all_discussions_from_scraped(self, discussion_class: str, full_discussion_class: bool, title_class: str,
                                     creation_date_class: str, views_class: str, replies_class: str,
@@ -166,11 +192,63 @@ class ForumCollector(abc.ABC):
             db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
             db.connect()
             # messages is a list containing tuples for each message, with the contents of each message item
-            # in the order of (id, text, date, user_id, discussion_id)
+            # in the order of (id, text, date, userd_id, discussion_id)
             for message in messages_dict.values():
                 db.add_message(message["discussion_id"], message["text"], message["date"], message["author"])
             db.close()
 
         return messages_dict
 
+    def new_discussions_via_forumlink(self, discussion_class: str, full_discussion_class: bool, discussion_name_class: str, discussion_creation_date_class: str,
+                                      discussion_views_class: str, discussion_replies_class: str, discussion_last_post_time_class: str,
+                                      message_class: str, full_message_class: bool, message_text_class: str, message_date_class: str, message_author_class: str):
+        discussions = self.scrape_discussions_from_forum(discussion_class, full_discussion_class)
+        for discussion in discussions:
+            discussion_info = self.return_discussion_info_from_scraped(discussion, discussion_name_class, discussion_creation_date_class,
+                                                                discussion_views_class, discussion_replies_class, discussion_last_post_time_class)
+            self.store_discussion_in_database(discussion_info)
 
+            messages = self.scrape_messages_from_discussion(discussion_info["link"], message_class=message_class, full_message_class=full_message_class)
+            for message in messages:
+                message_info = self.return_message_info_from_scraped(message, message_text_class, message_date_class, message_author_class, discussion_info["id"])
+
+                db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
+                db.connect()
+                user_id = db.select_user_by_username_and_forum_id(message_info["author"], self.identification)["id"]
+
+                if user_id is None:
+                    self.store_user_in_database(message_info)
+                    user_id = db.select_user_by_username_and_forum_id(message_info["author"], self.identification)["id"]
+                self.store_message_in_database(message_info, user_id)
+
+                db.close()
+
+    def new_messages_via_discussionlink(self, discussion_link: str, message_class: str, full_message_class: bool, message_text_class: str,
+                                        message_date_class: str, message_author_class: str):
+        db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
+        db.connect()
+        discussion_info = db.select_discussion(via_link=True, link=discussion_link)
+
+        if discussion_info is None:
+            raise Exception("Discussion not found in database")
+
+        messages = self.scrape_messages_from_discussion(discussion_link=discussion_link, message_class=message_class,
+                                                        full_message_class=full_message_class, via_link=True)["messages"]
+        for message in messages:
+            message_info = self.return_message_info_from_scraped(message, message_text_class, message_date_class,
+                                                                 message_author_class, discussion_info["id"])
+
+            print(message_info)
+
+            user = db.select_user_by_username_and_forum_id(message_info["author"], self.identification)
+
+            if user is None:
+                db.add_user(message_info["author"], self.identification)
+                user_id = db.select_user_by_username_and_forum_id(message_info["author"], self.identification)["id"]
+            else:
+                user_id = user["id"]
+
+            print(user_id)
+            self.store_message_in_database(message_info, user_id)
+
+        db.close()
