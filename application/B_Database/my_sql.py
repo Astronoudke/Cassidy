@@ -91,6 +91,51 @@ class DatabaseManager:
         self.cursor.execute(query)
         self.cnx.commit()
 
+    def clear_category_table(self):
+        try:
+            with self.cnx.cursor() as cursor:
+                query = "TRUNCATE TABLE categories;"
+                cursor.execute(query)
+                self.cnx.commit()
+        except Exception as e:
+            print(f"Error clearing category table: {e}")
+
+    def clear_forum_table(self):
+        try:
+            with self.cnx.cursor() as cursor:
+                query = "TRUNCATE TABLE forums;"
+                cursor.execute(query)
+                self.cnx.commit()
+        except Exception as e:
+            print(f"Error clearing forum table: {e}")
+
+    def clear_discussion_table(self):
+        try:
+            with self.cnx.cursor() as cursor:
+                query = "TRUNCATE TABLE discussions;"
+                cursor.execute(query)
+                self.cnx.commit()
+        except Exception as e:
+            print(f"Error clearing discussion table: {e}")
+
+    def clear_author_table(self):
+        try:
+            with self.cnx.cursor() as cursor:
+                query = "TRUNCATE TABLE authors;"
+                cursor.execute(query)
+                self.cnx.commit()
+        except Exception as e:
+            print(f"Error clearing author table: {e}")
+
+    def clear_message_table(self):
+        try:
+            with self.cnx.cursor() as cursor:
+                query = "TRUNCATE TABLE messages;"
+                cursor.execute(query)
+                self.cnx.commit()
+        except Exception as e:
+            print(f"Error clearing message table: {e}")
+
     def add_category(self, name):
         query = "INSERT INTO categories (name) VALUES (%s)"
         self.cursor.execute(query, (name,))

@@ -1,6 +1,5 @@
 import unittest
 import datetime
-from termcolor import colored
 
 from application.B_Database.my_sql import DatabaseManager
 from application.tests.functions import print_colored_text

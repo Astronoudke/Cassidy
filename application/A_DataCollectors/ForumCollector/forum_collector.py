@@ -197,14 +197,14 @@ class ForumCollector(abc.ABC):
             message_info = self.return_message_info_from_scraped(message, message_text_class, message_date_class,
                                                                  message_author_class, discussion_info["id"])
 
-            user = db.select_user_by_username_and_forum_id(message_info["author"], self.identification)
+            author = db.select_author_by_username_and_forum_id(message_info["author"], self.identification)
 
-            if user is None:
-                db.add_user(message_info["author"], self.identification)
-                user_id = db.select_user_by_username_and_forum_id(message_info["author"], self.identification)["id"]
+            if author is None:
+                db.add_author(message_info["author"], self.identification)
+                author_id = db.select_user_by_username_and_forum_id(message_info["author"], self.identification)["id"]
             else:
-                user_id = user["id"]
+                author_id = author["id"]
 
-            self.store_message_in_database(message_info, user_id)
+            self.store_message_in_database(message_info, author_id)
 
         db.close()
