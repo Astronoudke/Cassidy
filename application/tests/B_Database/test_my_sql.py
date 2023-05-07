@@ -2,27 +2,11 @@ import unittest
 import datetime
 from termcolor import colored
 
-from A_DataCollectors.ForumCollector.forum_collector import ForumCollector
-from B_Database.my_sql import DatabaseManager
-
-
-def print_colored_text(text, color):
-    color_codes = {
-        "red": "\033[31m",
-        "green": "\033[32m",
-        "yellow": "\033[33m",
-        "blue": "\033[34m",
-        "magenta": "\033[35m",
-        "cyan": "\033[36m",
-        "white": "\033[37m",
-    }
-
-    reset_code = "\033[0m"
-    print(f"{color_codes.get(color, reset_code)}{text}{reset_code}")
+from application.B_Database.my_sql import DatabaseManager
+from application.tests.functions import print_colored_text
 
 
 class TestDatabaseManager(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.db_manager = DatabaseManager(user='root', password='', host='localhost', database_name='test_cassidy')
@@ -34,6 +18,13 @@ class TestDatabaseManager(unittest.TestCase):
         cls.db_manager.close()
 
     def test_01_categories(self):
+        """
+        This test consists of the following steps:
+        1. Add a category
+        2. Edit the category
+        3. Select the category
+        4. Delete the category
+        """
         category_id = None
         try:
             # Add a category
@@ -61,6 +52,13 @@ class TestDatabaseManager(unittest.TestCase):
         print('\n')
 
     def test_02_forums(self):
+        """
+        This test consists of the following steps:
+        1. Add a forum
+        2. Edit the forum
+        3. Select the forum
+        4. Delete the forum
+        """
         category_id = None
         forum_id = None
         try:
@@ -99,6 +97,13 @@ class TestDatabaseManager(unittest.TestCase):
         print('\n')
 
     def test_03_discussions(self):
+        """
+        This test consists of the following steps:
+        1. Add a discussion
+        2. Edit the discussion
+        3. Select the discussion
+        4. Delete the discussion
+        """
         category_id = None
         forum_id = None
         discussion_id = None
@@ -154,6 +159,13 @@ class TestDatabaseManager(unittest.TestCase):
         print('\n')
 
     def test_04_messages(self):
+        """
+        This test consists of the following steps:
+        1. Add a message
+        2. Edit the message
+        3. Select the message
+        4. Delete the message
+        """
         category_id = None
         forum_id = None
         discussion_id = None
