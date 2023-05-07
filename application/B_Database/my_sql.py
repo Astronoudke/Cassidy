@@ -20,7 +20,7 @@ class DatabaseManager:
         self.create_categories_table()
         self.create_forums_table()
         self.create_discussions_table()
-        self.create_users_table()
+        self.create_authors_table()
         self.create_messages_table()
 
     def create_categories_table(self):
@@ -64,9 +64,9 @@ class DatabaseManager:
         self.cursor.execute(query)
         self.cnx.commit()
 
-    def create_users_table(self):
+    def create_authors_table(self):
         query = '''
-        CREATE TABLE IF NOT EXISTS users (
+        CREATE TABLE IF NOT EXISTS authors (
             id INT AUTO_INCREMENT PRIMARY KEY,
             username VARCHAR(255),
             forum_id INT,
@@ -82,9 +82,9 @@ class DatabaseManager:
             id INT AUTO_INCREMENT PRIMARY KEY,
             text TEXT,
             creation_date TIMESTAMP,
-            user_id INT,
+            author_id INT,
             discussion_id INT,
-            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (author_id) REFERENCES authors(id),
             FOREIGN KEY (discussion_id) REFERENCES discussions(id)
         )
         '''
@@ -96,6 +96,26 @@ class DatabaseManager:
         self.cursor.execute(query, (name,))
         self.cnx.commit()
         return self.cursor.lastrowid
+
+    def edit_category(self, id, name):
+        query = "UPDATE categories SET name = %s WHERE id = %s"
+        self.cursor.execute(query, (name, id))
+        self.cnx.commit()
+
+    def select_category(self, id):
+        query = "SELECT * FROM categories WHERE id = %s"
+        self.cursor.execute(query, (id,))
+        result = self.cursor.fetchone()
+        if result:
+            return {
+                'id': result[0],
+                'name': result[1],
+            }
+
+    def delete_category(self, id):
+        query = "DELETE FROM categories WHERE id = %s"
+        self.cursor.execute(query, (id,))
+        self.cnx.commit()
 
     def add_forum(self, name, base_url, description, category_id):
         query = "INSERT INTO forums (name, base_url, description, category_id) VALUES (%s, %s, %s, %s)"
@@ -170,9 +190,9 @@ class DatabaseManager:
         self.cursor.execute(query, (id,))
         self.cnx.commit()
 
-    def add_message(self, text, creation_date, user_id, discussion_id):
-        query = "INSERT INTO messages (text, creation_date, user_id, discussion_id) VALUES (%s, %s, %s, %s)"
-        self.cursor.execute(query, (text, creation_date, user_id, discussion_id))
+    def add_message(self, text, creation_date, author_id, discussion_id):
+        query = "INSERT INTO messages (text, creation_date, author_id, discussion_id) VALUES (%s, %s, %s, %s)"
+        self.cursor.execute(query, (text, creation_date, author_id, discussion_id))
         self.cnx.commit()
         return self.cursor.lastrowid
 
@@ -190,7 +210,7 @@ class DatabaseManager:
                 'id': result[0],
                 'text': result[1],
                 'creation_date': result[2],
-                'user_id': result[3],
+                'author_id': result[3],
                 'discussion_id': result[4]
             }
         else:
@@ -205,7 +225,7 @@ class DatabaseManager:
             message = {
                 'text': row[1],
                 'creation_date': row[2],
-                'user_id': row[3],
+                'author_id': row[3],
                 'discussion_id': row[4]
             }
             messages[row[0]] = message
@@ -216,19 +236,19 @@ class DatabaseManager:
         self.cursor.execute(query, (id,))
         self.cnx.commit()
 
-    def add_user(self, username, forum_id):
-        query = "INSERT INTO users (username, forum_id) VALUES (%s, %s)"
+    def add_author(self, username, forum_id):
+        query = "INSERT INTO authors (username, forum_id) VALUES (%s, %s)"
         self.cursor.execute(query, (username, forum_id))
         self.cnx.commit()
         return self.cursor.lastrowid
 
-    def edit_user(self, id, username):
-        query = "UPDATE users SET username = %s WHERE id = %s"
+    def edit_author(self, id, username):
+        query = "UPDATE authors SET username = %s WHERE id = %s"
         self.cursor.execute(query, (username, id))
         self.cnx.commit()
 
-    def select_user(self, id):
-        query = "SELECT * FROM users WHERE id = %s"
+    def select_author(self, id):
+        query = "SELECT * FROM authors WHERE id = %s"
         self.cursor.execute(query, (id,))
         result = self.cursor.fetchone()
         if result:
@@ -240,8 +260,8 @@ class DatabaseManager:
         else:
             return None
 
-    def select_user_by_username_and_forum_id(self, username, forum_id):
-        query = "SELECT * FROM users WHERE username = %s AND forum_id = %s"
+    def select_author_by_username_and_forum_id(self, username, forum_id):
+        query = "SELECT * FROM authors WHERE username = %s AND forum_id = %s"
         self.cursor.execute(query, (username, forum_id))
         result = self.cursor.fetchone()
         if result:
@@ -253,27 +273,7 @@ class DatabaseManager:
         else:
             return None
 
-    def delete_user(self, id):
-        query = "DELETE FROM users WHERE id = %s"
+    def delete_author(self, id):
+        query = "DELETE FROM authors WHERE id = %s"
         self.cursor.execute(query, (id,))
         self.cnx.commit()
-
-
-if __name__ == "__main__":
-    # Initialize the database manager
-    manager = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
-
-    # Connect to the database
-    manager.connect()
-
-    import datetime
-
-    a = datetime.datetime(2020, 2, 20)
-
-    forum_id = manager.add_forum('PSV 1: Selectie & Technische Staf', 'https://forum.psv.nl/index.php?forums/psv-1-selectie-technische-staf.11/',
-                                 'In dit onderdeel kunnen alle spelers en trainers van PSV 1 besproken worden.', 5)
-
-    # Add data to the discussions index
-
-    # Close the connection
-    manager.close()

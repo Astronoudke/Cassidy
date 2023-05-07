@@ -4,7 +4,11 @@ from B_Database.my_sql import DatabaseManager
 if __name__ == "__main__":
     db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
     db.connect()
-    forum = db.select_forum(id=8)
+
+    forum_id = db.add_forum('PSV 1: Selectie & Technische Staf',
+                                 'https://forum.psv.nl/index.php?forums/psv-1-selectie-technische-staf.11/',
+                                 'In dit onderdeel kunnen alle spelers en trainers van PSV 1 besproken worden.', 5)
+    forum = db.select_forum(id=forum_id)
     db.close()
 
     psv_collector = ForumCollector(identification=forum["id"],
