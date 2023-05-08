@@ -92,49 +92,34 @@ class DatabaseManager:
         self.cnx.commit()
 
     def clear_category_table(self):
-        try:
-            with self.cnx.cursor() as cursor:
-                query = "TRUNCATE TABLE categories;"
-                cursor.execute(query)
-                self.cnx.commit()
-        except Exception as e:
-            print(f"Error clearing category table: {e}")
+        self.cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+        self.cursor.execute("TRUNCATE TABLE categories;")
+        self.cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+        self.cnx.commit()
 
     def clear_forum_table(self):
-        try:
-            with self.cnx.cursor() as cursor:
-                query = "TRUNCATE TABLE forums;"
-                cursor.execute(query)
-                self.cnx.commit()
-        except Exception as e:
-            print(f"Error clearing forum table: {e}")
+        self.cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+        self.cursor.execute("TRUNCATE TABLE forums;")
+        self.cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+        self.cnx.commit()
 
     def clear_discussion_table(self):
-        try:
-            with self.cnx.cursor() as cursor:
-                query = "TRUNCATE TABLE discussions;"
-                cursor.execute(query)
-                self.cnx.commit()
-        except Exception as e:
-            print(f"Error clearing discussion table: {e}")
+        self.cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+        self.cursor.execute("TRUNCATE TABLE discussions;")
+        self.cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+        self.cnx.commit()
 
     def clear_author_table(self):
-        try:
-            with self.cnx.cursor() as cursor:
-                query = "TRUNCATE TABLE authors;"
-                cursor.execute(query)
-                self.cnx.commit()
-        except Exception as e:
-            print(f"Error clearing author table: {e}")
+        self.cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+        self.cursor.execute("TRUNCATE TABLE authors;")
+        self.cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+        self.cnx.commit()
 
     def clear_message_table(self):
-        try:
-            with self.cnx.cursor() as cursor:
-                query = "TRUNCATE TABLE messages;"
-                cursor.execute(query)
-                self.cnx.commit()
-        except Exception as e:
-            print(f"Error clearing message table: {e}")
+        self.cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+        self.cursor.execute("TRUNCATE TABLE messages;")
+        self.cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+        self.cnx.commit()
 
     def add_category(self, name):
         query = "INSERT INTO categories (name) VALUES (%s)"

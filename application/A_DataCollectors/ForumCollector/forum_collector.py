@@ -201,7 +201,7 @@ class ForumCollector(abc.ABC):
 
             if author is None:
                 db.add_author(message_info["author"], self.identification)
-                author_id = db.select_user_by_username_and_forum_id(message_info["author"], self.identification)["id"]
+                author_id = db.select_author_by_username_and_forum_id(message_info["author"], self.identification)["id"]
             else:
                 author_id = author["id"]
 

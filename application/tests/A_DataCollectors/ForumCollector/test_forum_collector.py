@@ -32,8 +32,12 @@ class TestForumCollector(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.db.delete_forum(cls.forum_id)
-        cls.db.delete_category(cls.category_id)
+        cls.db.clear_message_table()
+        cls.db.clear_author_table()
+        cls.db.clear_discussion_table()
+        cls.db.clear_forum_table()
+        cls.db.clear_category_table()
+
         cls.db.close()
 
     def test_01_store_discussions_of_forum_link(self):
@@ -44,8 +48,9 @@ class TestForumCollector(unittest.TestCase):
         2. For each discussion:
             2.1 Storing discussion info as a dict using "ForumCollector.return_discussion_info_from_scraped"
             2.2 Storing the discussion in the database using "DatabaseManager.add_discussion"
-            2.3 Deleting the discussion from the database using "DatabaseManager.delete_discussion"
+        3. Clearing the discussion table using "DatabaseManager.clear_discussion_table"
         """
+        print("\n" + "Test 01: Store discussions from forum link" + "\n")
         discussion_class = "structItem structItem--thread js-inlineModContainer js-threadListItem"
         full_discussion_class = False
         discussion_name_class = "structItem-title"
@@ -84,51 +89,51 @@ class TestForumCollector(unittest.TestCase):
         1. Scraping messages from the discussion using "ForumCollector.scrape_messages_from_discussion"
         2. For each message:
             2.1 Storing message info as a dict using "ForumCollector.return_message_info_from_scraped"
-            2.2 Storing the message in the database using "DatabaseManager.add_message"
-            2.3 Deleting the message from the database using "DatabaseManager.delete_message"
+            2.2 Storing the author of the message in the database if it is not yet found.
+            2.3 Storing the message in the database using "DatabaseManager.add_message"
         :return:
         """
+        print("\n" + "Test 02: Store messages from discussion link" + "\n")
         discussion_id = None
-        try:
-            discussion_link = "https://forum.psv.nl/index.php?threads/guus-til-m.1346/"
-            discussion_creation_date = datetime.datetime.now().date()
-            discussion_id = self.db.add_discussion("Guus Til (M)", discussion_link, discussion_creation_date,
-                                                   0, 0, discussion_creation_date, self.forum_id)
-            message_class = "message message--post js-post js-inlineModContainer"
-            full_message_class = False
-            message_text_class = "bbWrapper"
-            message_date_class = "u-dt"
-            message_author_class = "username"
+        discussion_link = "https://forum.psv.nl/index.php?threads/guus-til-m.1346/"
+        discussion_creation_date = datetime.datetime.now().date()
+        discussion_id = self.db.add_discussion("Guus Til (M)", discussion_link, discussion_creation_date,
+                                               0, 0, discussion_creation_date, self.forum_id)
+        message_class = "message message--post js-post js-inlineModContainer"
+        full_message_class = False
+        message_text_class = "bbWrapper"
+        message_date_class = "u-dt"
+        message_author_class = "username"
 
-            messages = self.psv_collector.scrape_messages_from_discussion(discussion_link=discussion_link,
-                                                                          message_class=message_class,
-                                                                          full_message_class=full_message_class,
-                                                                          via_link=True)["messages"]
-            print_colored_text("Messages scraped: " + str(len(messages)), "green")
-            for message in messages:
-                message_info = self.psv_collector.return_message_info_from_scraped(message, message_text_class,
-                                                                                   message_date_class,
-                                                                                   message_author_class, discussion_id)
+        messages = self.psv_collector.scrape_messages_from_discussion(discussion_link=discussion_link,
+                                                                      message_class=message_class,
+                                                                      full_message_class=full_message_class,
+                                                                      via_link=True)["messages"]
+        print_colored_text("Messages scraped: " + str(len(messages)), "green")
+        for message in messages:
+            message_info = self.psv_collector.return_message_info_from_scraped(message, message_text_class,
+                                                                               message_date_class,
+                                                                               message_author_class, discussion_id)
 
+            author = self.db.select_author_by_username_and_forum_id(message_info["author"],
+                                                                    self.psv_collector.identification)
+
+            if author is None:
                 self.db.add_author(message_info["author"], self.psv_collector.identification)
-                user_id = self.db.select_author_by_username_and_forum_id(message_info["author"],
-                                                                         self.psv_collector.identification)["id"]
+                author_id = self.db.select_author_by_username_and_forum_id(message_info["author"],
+                                                                           self.psv_collector.identification)[
+                    "id"]
+            else:
+                author_id = author["id"]
 
-                self.db.add_message(
-                    message_info["text"],
-                    message_info["date"],
-                    user_id,
-                    message_info["discussion_id"]
-                )
+            self.db.add_message(
+                message_info["text"],
+                message_info["date"],
+                author_id,
+                message_info["discussion_id"]
+            )
 
-            print_colored_text("Messages stored and deleted: " + str(len(messages)), "green")
-
-            self.db.clear_message_table()
-            self.db.clear_author_table()
-
-        finally:
-            if discussion_id:
-                self.db.delete_discussion(discussion_id)
+        print_colored_text("Messages stored and deleted: " + str(len(messages)), "green")
 
     def test_03_discussions_of_forum_id(self):
         pass
