@@ -13,3 +13,9 @@ The application is separated in five parts:
 
 ## Current focus
 As of now, the application is a work-in-progress. The focus lays on collecting text data from online forums and scientific literature. Although an ElasticSearch-database is preferable to use, a MySQL-database is set up for now for the proof of concept, as this is free of charges. DataProcessors, Analyzers and a UI are yet to be created.
+
+## Assumptions
+The code currently makes assumptions regarding the lay-out or functioning of either the application itself, the text data or the source from which text data is collected.
+- Messages within a discussion are regarded as the same if the message is within the same discussion, on the same date, by the same author and contains the same text (forum_application.py, line 69-...)
+
+
