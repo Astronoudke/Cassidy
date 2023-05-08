@@ -19,6 +19,11 @@ class TestForumCollector(unittest.TestCase):
                                         cls.category_id)
         cls.forum = cls.db.select_forum(id=cls.forum_id)
 
+        cls.discussion_link = "https://forum.psv.nl/index.php?threads/guus-til-m.1346/"
+        cls.discussion_creation_date = datetime.datetime.now().date()
+        cls.discussion_id = cls.db.add_discussion("Guus Til (M)", cls.discussion_link, cls.discussion_creation_date,
+                                               0, 0, cls.discussion_creation_date, cls.forum_id)
+
     def setUp(self):
         self.psv_collector = ForumCollector(identification=self.forum["id"],
                                             name=self.forum["name"],
@@ -48,9 +53,8 @@ class TestForumCollector(unittest.TestCase):
         2. For each discussion:
             2.1 Storing discussion info as a dict using "ForumCollector.return_discussion_info_from_scraped"
             2.2 Storing the discussion in the database using "DatabaseManager.add_discussion"
-        3. Clearing the discussion table using "DatabaseManager.clear_discussion_table"
         """
-        print("\n" + "Test 01: Store discussions from forum link" + "\n")
+        print("\n" + "Test 01: Store discussions in DB by forum link" + "\n")
         discussion_class = "structItem structItem--thread js-inlineModContainer js-threadListItem"
         full_discussion_class = False
         discussion_name_class = "structItem-title"
@@ -60,7 +64,7 @@ class TestForumCollector(unittest.TestCase):
         discussion_last_post_time_class = "structItem-latestDate u-dt"
 
         discussions = self.psv_collector.scrape_discussions_from_forum(discussion_class, full_discussion_class)
-        print_colored_text("Discussions scraped: " + str(len(discussions)), "green")
+        print_colored_text("- Discussions scraped: " + str(len(discussions)), "green")
 
         for discussion in discussions:
             discussion_info = self.psv_collector.return_discussion_info_from_scraped(discussion, discussion_name_class,
@@ -78,9 +82,7 @@ class TestForumCollector(unittest.TestCase):
                 discussion_info["forum_id"]
             )
 
-        self.db.clear_discussion_table()
-
-        print_colored_text("Discussions stored and deleted: " + str(len(discussions)), "green")
+        print_colored_text("- Discussions stored in the database: " + str(len(discussions)), "green")
 
     def test_02_messages_of_discussion_link(self):
         # TODO: Store the discussion itself in the database
@@ -93,27 +95,22 @@ class TestForumCollector(unittest.TestCase):
             2.3 Storing the message in the database using "DatabaseManager.add_message"
         :return:
         """
-        print("\n" + "Test 02: Store messages from discussion link" + "\n")
-        discussion_id = None
-        discussion_link = "https://forum.psv.nl/index.php?threads/guus-til-m.1346/"
-        discussion_creation_date = datetime.datetime.now().date()
-        discussion_id = self.db.add_discussion("Guus Til (M)", discussion_link, discussion_creation_date,
-                                               0, 0, discussion_creation_date, self.forum_id)
+        print("\n" + "Test 02: Store messages in DB by discussion link" + "\n")
         message_class = "message message--post js-post js-inlineModContainer"
         full_message_class = False
         message_text_class = "bbWrapper"
         message_date_class = "u-dt"
         message_author_class = "username"
 
-        messages = self.psv_collector.scrape_messages_from_discussion(discussion_link=discussion_link,
+        messages = self.psv_collector.scrape_messages_from_discussion(discussion_link=self.discussion_link,
                                                                       message_class=message_class,
                                                                       full_message_class=full_message_class,
                                                                       via_link=True)["messages"]
-        print_colored_text("Messages scraped: " + str(len(messages)), "green")
+        print_colored_text("- Messages scraped: " + str(len(messages)), "green")
         for message in messages:
             message_info = self.psv_collector.return_message_info_from_scraped(message, message_text_class,
                                                                                message_date_class,
-                                                                               message_author_class, discussion_id)
+                                                                               message_author_class, self.discussion_id)
 
             author = self.db.select_author_by_username_and_forum_id(message_info["author"],
                                                                     self.psv_collector.identification)
@@ -133,16 +130,49 @@ class TestForumCollector(unittest.TestCase):
                 message_info["discussion_id"]
             )
 
-        print_colored_text("Messages stored and deleted: " + str(len(messages)), "green")
+        print_colored_text("- Messages stored in the database: " + str(len(messages)), "green")
 
     def test_03_discussions_of_forum_id(self):
-        pass
+        """
+        This test consists of the following steps:
+        1. Collecting the discussions of the forum using "DatabaseManager.select_discussions_by_forum_id"
+        :return:
+        """
+        print("\n" + "Test 03: Collect discussions by forum ID")
+        discussions = self.db.select_discussions_by_forum_id(self.psv_collector.identification)
+
+        if discussions:
+            print_colored_text("- Discussions collected: " + str(len(discussions)), "green")
+        else:
+            print_colored_text("- No discussions found for forum ID: " + str(self.psv_collector.identification), "yellow")
 
     def test_04_messages_of_discussion_id(self):
-        pass
+        """
+        This test consists of the following steps:
+        1. Collecting the messages of the discussion using "DatabaseManager.select_messages_by_discussion_id"
+        :return:
+        """
+        print("\n" + "Test 04: Collect messages by discussion ID")
+        messages = self.db.select_messages_by_discussion_id(self.discussion_id)
+
+        if messages:
+            print_colored_text("- Messages collected: " + str(len(messages)), "green")
+        else:
+            print_colored_text("- No messages found for discussion ID: " + str(self.discussion_id), "yellow")
 
     def test_05_messages_of_forum_id(self):
-        pass
+        """
+        This test consists of the following steps:
+        1. Collecting the messages of the forum using "DatabaseManager.select_messages_by_forum_id"
+        :return:
+        """
+        print("\n" + "Test 05: Collect messages by forum ID")
+        messages = self.db.select_messages_by_forum_id(self.psv_collector.identification)
+
+        if messages:
+            print_colored_text("- Messages collected: " + str(len(messages)), "green")
+        else:
+            print_colored_text("- No messages found for forum ID: " + str(self.psv_collector.identification), "yellow")
 
 
 def suite():

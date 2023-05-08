@@ -215,6 +215,28 @@ class DatabaseManager:
         else:
             return None
 
+    def select_discussions_by_forum_id(self, forum_id: int):
+        query = "SELECT * FROM discussions WHERE forum_id = %s"
+        self.cursor.execute(query, (forum_id,))
+        results = self.cursor.fetchall()
+        discussions = []
+
+        if results:
+            for result in results:
+                discussions.append({
+                    'id': result[0],
+                    'name': result[1],
+                    'link': result[2],
+                    'creation_date': result[3],
+                    'views': result[4],
+                    'replies': result[5],
+                    'last_post_time': result[6],
+                    'forum_id': result[7]
+                })
+            return discussions
+        else:
+            return None
+
     def delete_discussion(self, id):
         query = "DELETE FROM discussions WHERE id = %s"
         self.cursor.execute(query, (id,))
@@ -248,18 +270,46 @@ class DatabaseManager:
 
     def select_messages_by_discussion_id(self, discussion_id):
         query = "SELECT * FROM messages WHERE discussion_id = %s"
-        values = (discussion_id,)
-        self.cursor.execute(query, values)
-        messages = {}
-        for row in self.cursor.fetchall():
-            message = {
-                'text': row[1],
-                'creation_date': row[2],
-                'author_id': row[3],
-                'discussion_id': row[4]
-            }
-            messages[row[0]] = message
-        return messages
+        self.cursor.execute(query, (discussion_id,))
+        results = self.cursor.fetchall()
+        messages = []
+
+        if results:
+            for result in results:
+                messages.append({
+                    'id': result[0],
+                    'text': result[1],
+                    'creation_date': result[2],
+                    'author_id': result[3],
+                    'discussion_id': result[4]
+                })
+            return messages
+        else:
+            return None
+
+    def select_messages_by_forum_id(self, forum_id):
+        query = """
+        SELECT messages.* 
+        FROM messages
+        JOIN discussions ON messages.discussion_id = discussions.id
+        WHERE discussions.forum_id = %s
+        """
+        self.cursor.execute(query, (forum_id,))
+        results = self.cursor.fetchall()
+        messages = []
+
+        if results:
+            for result in results:
+                messages.append({
+                    'id': result[0],
+                    'text': result[1],
+                    'creation_date': result[2],
+                    'author_id': result[3],
+                    'discussion_id': result[4]
+                })
+            return messages
+        else:
+            return None
 
     def delete_message(self, id):
         query = "DELETE FROM messages WHERE id = %s"
