@@ -311,6 +311,21 @@ class DatabaseManager:
         else:
             return None
 
+    def select_message_by_discussion_date_author_and_text(self, discussion_id, creation_date, author_id, text):
+        query = "SELECT * FROM messages WHERE discussion_id = %s AND creation_date = %s AND author_id = %s AND text = %s"
+        self.cursor.execute(query, (discussion_id, creation_date, author_id, text))
+        result = self.cursor.fetchone()
+        if result:
+            return {
+                'id': result[0],
+                'text': result[1],
+                'creation_date': result[2],
+                'author_id': result[3],
+                'discussion_id': result[4]
+            }
+        else:
+            return None
+
     def delete_message(self, id):
         query = "DELETE FROM messages WHERE id = %s"
         self.cursor.execute(query, (id,))

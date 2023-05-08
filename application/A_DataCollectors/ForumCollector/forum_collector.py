@@ -2,7 +2,7 @@ import abc
 import requests
 from bs4 import BeautifulSoup
 
-from .functions import extract_text_by_class, extract_href_by_class, create_discussion_url, clean_data
+from .functions import extract_text_by_class, extract_href_by_class, create_discussion_url, clean_view_or_reply_amount
 
 import sys
 from pathlib import Path
@@ -110,13 +110,12 @@ class ForumCollector(abc.ABC):
         return {"messages": all_messages, "discussion_id": discussion_id, "discussion_link": discussion_link}
 
     def return_discussion_info_from_scraped(self, discussion, name_class: str, creation_date_class: str,
-                                            views_class: str,
-                                            replies_class: str, last_post_time_class: str):
+                                            views_class: str, replies_class: str, last_post_time_class: str):
         discussion_name = extract_text_by_class(discussion, name_class)
         discussion_link = extract_href_by_class(discussion, name_class)
         discussion_creation_date = extract_text_by_class(discussion, creation_date_class)
-        discussion_views = clean_data(extract_text_by_class(discussion, views_class))
-        discussion_replies = clean_data(extract_text_by_class(discussion, replies_class))
+        discussion_views = clean_view_or_reply_amount(extract_text_by_class(discussion, views_class))
+        discussion_replies = clean_view_or_reply_amount(extract_text_by_class(discussion, replies_class))
         discussion_last_post_time = extract_text_by_class(discussion, last_post_time_class)
 
         discussion_link = create_discussion_url(self.base_url, discussion_link[0])

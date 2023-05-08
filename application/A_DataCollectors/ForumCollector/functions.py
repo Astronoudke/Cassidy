@@ -48,7 +48,8 @@ def convert_to_int(value):
     return int(float(value) * multiplier)
 
 
-def clean_data(data):
-    value = data.split('\n')[-1]
+def clean_view_or_reply_amount(value):
+    value = value.split('\n')[-1]
     cleaned_value = convert_to_int(value)
+
     return cleaned_value

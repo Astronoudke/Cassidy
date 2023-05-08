@@ -45,7 +45,7 @@ class TestForumCollector(unittest.TestCase):
 
         cls.db.close()
 
-    def test_01_store_discussions_of_forum_link(self):
+    def test_01_store_discussions_by_forum_link(self):
         # TODO: Store the forum itself in the database
         """
         This test consists of the following steps:
@@ -72,7 +72,7 @@ class TestForumCollector(unittest.TestCase):
                                                                                      discussion_views_class,
                                                                                      discussion_replies_class,
                                                                                      discussion_last_post_time_class)
-            discussion_id = self.db.add_discussion(
+            self.db.add_discussion(
                 discussion_info["name"],
                 discussion_info["link"],
                 discussion_info["creation date"],
@@ -84,7 +84,7 @@ class TestForumCollector(unittest.TestCase):
 
         print_colored_text("- Discussions stored in the database: " + str(len(discussions)), "green")
 
-    def test_02_messages_of_discussion_link(self):
+    def test_02_store_messages_by_discussion_link(self):
         # TODO: Store the discussion itself in the database
         """
         This test consists of the following steps:
@@ -132,7 +132,7 @@ class TestForumCollector(unittest.TestCase):
 
         print_colored_text("- Messages stored in the database: " + str(len(messages)), "green")
 
-    def test_03_discussions_of_forum_id(self):
+    def test_03_collect_discussions_by_forum_id(self):
         """
         This test consists of the following steps:
         1. Collecting the discussions of the forum using "DatabaseManager.select_discussions_by_forum_id"
@@ -146,7 +146,7 @@ class TestForumCollector(unittest.TestCase):
         else:
             print_colored_text("- No discussions found for forum ID: " + str(self.psv_collector.identification), "yellow")
 
-    def test_04_messages_of_discussion_id(self):
+    def test_04_collect_messages_by_discussion_id(self):
         """
         This test consists of the following steps:
         1. Collecting the messages of the discussion using "DatabaseManager.select_messages_by_discussion_id"
@@ -160,7 +160,7 @@ class TestForumCollector(unittest.TestCase):
         else:
             print_colored_text("- No messages found for discussion ID: " + str(self.discussion_id), "yellow")
 
-    def test_05_messages_of_forum_id(self):
+    def test_05_collect_messages_by_forum_id(self):
         """
         This test consists of the following steps:
         1. Collecting the messages of the forum using "DatabaseManager.select_messages_by_forum_id"
@@ -177,12 +177,12 @@ class TestForumCollector(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(TestForumCollector('test_01_discussions_of_forum_link'))
-    suite.addTest(TestForumCollector('test_02_messages_of_discussion_link'))
-    suite.addTest(TestForumCollector('test_03_discussions_of_forum_id'))
-    suite.addTest(TestForumCollector('test_04_messages_of_discussion_id'))
-    suite.addTest(TestForumCollector('test_05_messages_of_forum_id'))
-    # Add more test methods as needed
+    suite.addTest(TestForumCollector('test_01_store_discussions_by_forum_link'))
+    suite.addTest(TestForumCollector('test_02_store_messages_by_discussion_link'))
+    suite.addTest(TestForumCollector('test_03_store_discussions_by_forum_id'))
+    suite.addTest(TestForumCollector('test_04_store_messages_by_discussion_id'))
+    suite.addTest(TestForumCollector('test_05_store_messages_by_forum_id'))
+
     return suite
 
 
