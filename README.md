@@ -2,7 +2,7 @@
 
 *Cassidy is currently a work-in-progress*
 # Cassidy
-Cassidy is an open-source application for researchers and other users to easily collect text data from various sources, and analyze this text data using text mining-techniques. The goal of the application is to turn the plethora of public opinion that is available online, into information that allows researchers to gain possibly unique insights into a certain subject.
+Cassidy is an open-source application for researchers and other users to easily collect text data from various sources, and analyze this text data using different text mining-functionalities. The goal of the application is to turn the plethora of public opinion that is available online, into information that allows researchers to gain possibly unique insights into a certain subject.
 
 The application is separated in five parts:
 - A_DataCollectors. In order to collect text data from different kinds of sources, separate DataCollector-classes are made in order to adapt to the different lay-outs of the sources. 
