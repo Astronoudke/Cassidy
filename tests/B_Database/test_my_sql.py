@@ -2,7 +2,7 @@ import unittest
 import datetime
 
 from application.B_Database.my_sql import DatabaseManager
-from application.tests.functions import print_colored_text
+from tests.functions import print_colored_text
 
 
 class TestDatabaseManager(unittest.TestCase):
