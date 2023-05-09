@@ -83,9 +83,9 @@ class ForumCollector(abc.ABC):
         all_messages = []
 
         # First determine the pages to parse through
-        forum_url = BeautifulSoup(requests.get(discussion_link).content, 'html.parser')
+        page_content = BeautifulSoup(requests.get(discussion_link).content, 'html.parser')
 
-        pagination = forum_url.find(class_=lambda x: x == pagination_class)
+        pagination = page_content.find(class_=lambda x: x == pagination_class)
         pagination_texts = extract_text_by_class_split(pagination)
         pagination_pages = [int(x) for x in pagination_texts if x.isdigit()]
 
@@ -96,7 +96,7 @@ class ForumCollector(abc.ABC):
 
         while True:
             print(page)
-            pagination = forum_url.find(class_=lambda x: x == pagination_class)
+            pagination = page_content.find(class_=lambda x: x == pagination_class)
             if page > end_page:
                 break
             href = find_href_by_text(pagination, str(page))
@@ -111,17 +111,17 @@ class ForumCollector(abc.ABC):
                 else:
                     page_url = create_discussion_url(discussion_link, href)
             print(page_url)
-            discussion_url = BeautifulSoup(requests.get(page_url).content, 'html.parser')
+            page_content = BeautifulSoup(requests.get(page_url).content, 'html.parser')
 
             if full_message_class:
-                message_items = discussion_url.find_all(class_=lambda x: x == message_class)
+                message_items = page_content.find_all(class_=lambda x: x == message_class)
             else:
-                message_items = discussion_url.find_all(class_=lambda x: x and x.startswith(message_class))
+                message_items = page_content.find_all(class_=lambda x: x and x.startswith(message_class))
 
             all_messages.extend(message_items)
             page += 1
 
-        return {"messages": all_messages, "discussion_id": discussion_id, "discussion_link": discussion_link}
+        return {"messages": all_messages}
 
     def return_discussion_info_from_scraped(self, discussion, name_class: str, creation_date_class: str,
                                             views_class: str, replies_class: str, last_post_time_class: str):
