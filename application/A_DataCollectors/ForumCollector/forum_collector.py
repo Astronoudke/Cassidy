@@ -32,9 +32,9 @@ class ForumCollector(abc.ABC):
         all_discussions = []
 
         # First determine the pages to parse through
-        forum_url = BeautifulSoup(requests.get(self.base_url).content, 'html.parser')
+        page_content = BeautifulSoup(requests.get(self.base_url).content, 'html.parser')
 
-        pagination = forum_url.find(class_=lambda x: x == pagination_class)
+        pagination = page_content.find(class_=lambda x: x == pagination_class)
         pagination_texts = extract_text_by_class_split(pagination)
         pagination_pages = [int(x) for x in pagination_texts if x.isdigit()]
 
@@ -44,6 +44,8 @@ class ForumCollector(abc.ABC):
         page = start_page
 
         while True:
+            print(page)
+            pagination = page_content.find(class_=lambda x: x == pagination_class)
             if page > end_page:
                 break
             href = find_href_by_text(pagination, str(page))
@@ -58,12 +60,12 @@ class ForumCollector(abc.ABC):
                 else:
                     page_url = create_discussion_url(self.base_url, href)
             print(page_url)
-            forum_url = BeautifulSoup(requests.get(page_url).content, 'html.parser')
+            page_content = BeautifulSoup(requests.get(page_url).content, 'html.parser')
 
             if full_discussion_class:
-                discussion_items = forum_url.find_all(class_=lambda x: x == discussion_class)
+                discussion_items = page_content.find_all(class_=lambda x: x == discussion_class)
             else:
-                discussion_items = forum_url.find_all(class_=lambda x: x and x.startswith(discussion_class))
+                discussion_items = page_content.find_all(class_=lambda x: x and x.startswith(discussion_class))
 
             all_discussions.extend(discussion_items)
             page += 1

@@ -1,5 +1,7 @@
 from urllib.parse import urljoin
 from bs4 import NavigableString, Tag
+from datetime import datetime
+
 
 
 def extract_text_by_class(soup, class_: str):
@@ -46,7 +48,10 @@ def convert_to_int(value):
         multiplier = 1000000
         value = value.replace('M', '')
 
-    return int(float(value) * multiplier)
+    try:
+        return int(float(value) * multiplier)
+    except ValueError:
+        return 0
 
 
 def clean_view_or_reply_amount(value):
@@ -54,6 +59,16 @@ def clean_view_or_reply_amount(value):
     cleaned_value = convert_to_int(value)
 
     return cleaned_value
+
+
+def convert_date_for_db(date_string):
+    for format in ["%b %d, %Y", "%d %B %Y", "%d %b %Y"]:
+        try:
+            return datetime.strptime(date_string, format).date()
+        except ValueError:
+            pass  # continue to next format
+
+    return None
 
 
 # Functions for pagination
@@ -86,4 +101,3 @@ def find_href_by_text(element: Tag, text: str) -> str:
             if descendant.get_text(strip=True) == text:
                 return descendant.get('href')
     return None  # return None if no link with the specified text was found
-

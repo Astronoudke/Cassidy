@@ -1,6 +1,7 @@
 import abc
 
 from .forum_collector import ForumCollector
+from .functions import convert_date_for_db
 from B_Database.my_sql import DatabaseManager
 
 
@@ -30,6 +31,7 @@ class ForumApplication(abc.ABC):
                                                                                            discussion_views_class,
                                                                                            discussion_replies_class,
                                                                                            discussion_last_post_time_class)
+                print(discussion_info)
 
                 discussion_id = self.db.select_discussion(via_link=True, link=discussion_info["link"])
 
@@ -37,23 +39,22 @@ class ForumApplication(abc.ABC):
                     self.db.add_discussion(
                         discussion_info["name"],
                         discussion_info["link"],
-                        discussion_info["creation date"],
+                        convert_date_for_db(discussion_info["creation date"]) if discussion_info["creation date"] else None,
                         discussion_info["views"],
                         discussion_info["replies"],
-                        discussion_info["last_post_time"],
+                        convert_date_for_db(discussion_info["last_post_time"]) if discussion_info["last_post_time"] else None,
                         self.forum_collector.identification
                     )
                 else:
                     print("Discussion " + discussion_info["name"] + " already in database. Changing values...")
                     self.db.edit_discussion(
-                        discussion_id,
+                        discussion_id["id"],
                         discussion_info["name"],
                         discussion_info["link"],
-                        discussion_info["creation date"],
+                        convert_date_for_db(discussion_info["creation date"]) if discussion_info["creation date"] else None,
                         discussion_info["views"],
                         discussion_info["replies"],
-                        discussion_info["last_post_time"],
-                        self.forum_collector.identification
+                        convert_date_for_db(discussion_info["last_post_time"]) if discussion_info["last_post_time"] else None
                     )
 
                 discussions_dict[discussion_num] = discussion_info
@@ -90,7 +91,7 @@ class ForumApplication(abc.ABC):
 
         if store_in_db:
             self.db.connect()
-            discussion_id = self.db.get_discussion_id_by_link(discussion_link)
+            discussion_id = self.db.select_discussion(via_link=True, link=discussion_link)
 
             if discussion_id is None:
                 discussion_id = self.db.add_discussion(discussion_name, discussion_link, discussion_creation_date,
@@ -129,7 +130,7 @@ class ForumApplication(abc.ABC):
                 if message_id is None:
                     self.db.add_message(
                         message_info["text"],
-                        message_info["date"],
+                        convert_date_for_db(message_info["date"]),
                         author_id,
                         message_info["discussion_id"]
                     )

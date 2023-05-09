@@ -1,4 +1,5 @@
 import mysql.connector
+import json
 
 
 class DatabaseManager:
@@ -22,6 +23,18 @@ class DatabaseManager:
         self.create_discussions_table()
         self.create_authors_table()
         self.create_messages_table()
+
+    def export_table_to_json(self, table_name, file_path):
+        self.cursor.execute(f"SELECT * FROM {table_name}")
+        rows = self.cursor.fetchall()
+        column_names = [i[0] for i in self.cursor.description]  # Fetching column names
+
+        # Converting tuples to dictionary
+        dict_rows = [dict(zip(column_names, row)) for row in rows]
+
+        # Writing to file
+        with open(file_path, 'w') as f:
+            json.dump(dict_rows, f, default=str)  # default=str is for handling date and datetime objects
 
     def create_categories_table(self):
         query = '''
