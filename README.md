@@ -16,6 +16,7 @@ As of now, the application is a work-in-progress. The focus lays on collecting t
 
 ## Assumptions
 The code currently makes assumptions regarding the lay-out or functioning of either the application itself, the text data or the source from which text data is collected.
-- Messages within a discussion are regarded as the same if the message is within the same discussion, on the same date, by the same author and contains the same text (forum_application.py, line 69-...)
-
-
+- The name of a discussion and the link to the discussion are within the same element within the web page (forum_collector.py).
+- Messages within a discussion are regarded as the same if the message is within the same discussion, on the same date, by the same author and contains the same text (forum_application.py)
+- Last post times of a discussion are stored in a separate element within the web page (forum_collector.py); exposed by [NASA Earthdata Forum](https://forum.earthdata.nasa.gov/viewforum.php?f=7&start=25).
+- When entering the pagination of a forum, it is assumed that both the minimum and maximum page number is included within the pagination of the first page (forum_collector.py).
