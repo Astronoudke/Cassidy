@@ -110,7 +110,8 @@ class TestForumCollector(unittest.TestCase):
         for message in messages:
             message_info = self.psv_collector.return_message_info_from_scraped(message, message_text_class,
                                                                                message_date_class,
-                                                                               message_author_class, self.discussion_id)
+                                                                               message_author_class,
+                                                                               discussion_id=self.discussion_id)
 
             author = self.db.select_author_by_username_and_forum_id(message_info["author"],
                                                                     self.psv_collector.identification)

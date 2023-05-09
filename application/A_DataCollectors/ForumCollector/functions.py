@@ -1,4 +1,5 @@
 from urllib.parse import urljoin
+from bs4 import NavigableString, Tag
 
 
 def extract_text_by_class(soup, class_: str):
@@ -53,3 +54,36 @@ def clean_view_or_reply_amount(value):
     cleaned_value = convert_to_int(value)
 
     return cleaned_value
+
+
+# Functions for pagination
+def extract_text_by_class_split(element: Tag) -> list:
+    """A function for getting the text within the pagination class."""
+    texts = []
+    for descendant in element.descendants:
+        if isinstance(descendant, NavigableString):
+            text = descendant.strip()  # remove leading/trailing white spaces
+            if text:  # check if the text is not an empty string
+                texts.append(text)
+    return texts
+
+
+def filter_ints(strings):
+    """A function for getting the numbers out of the list of text within the pagination class."""
+    result = []
+    for string in strings:
+        try:
+            int(string)
+            result.append(string)
+        except ValueError:
+            pass
+    return result
+
+
+def find_href_by_text(element: Tag, text: str) -> str:
+    for descendant in element.descendants:
+        if isinstance(descendant, Tag) and descendant.name == 'a':
+            if descendant.get_text(strip=True) == text:
+                return descendant.get('href')
+    return None  # return None if no link with the specified text was found
+

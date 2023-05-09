@@ -1,8 +1,8 @@
 import abc
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString, Tag
 
-from .functions import extract_text_by_class, extract_href_by_class, create_discussion_url, clean_view_or_reply_amount
+from .functions import extract_text_by_class, extract_href_by_class, create_discussion_url, clean_view_or_reply_amount, extract_text_by_class_split, filter_ints, find_href_by_text
 
 import sys
 from pathlib import Path
@@ -13,13 +13,9 @@ from B_Database.my_sql import DatabaseManager
 
 class ForumCollector(abc.ABC):
     def __init__(self, identification: int, name: str, base_url: str, description: str, category_id: int,
-                 page_param: str, start_page: int, page_increment: int, has_url_suffix: bool = False,
-                 url_suffix: str = None):
+                 has_url_suffix: bool = False, url_suffix: str = None):
         """
         :param base_url: The base URL of the forum.
-        :param page_param: The URL parameter used to specify the page number.
-        :param start_page: The page number to start with.
-        :param page_increment: The number of pages to increment by.
         :param has_url_suffix: Whether the URL has a suffix at the end.
         :param url_suffix: The suffix of the URL. This might be used at the end of the URL (such as .html).
         """
@@ -29,23 +25,39 @@ class ForumCollector(abc.ABC):
         self.description = description
         self.category_id = category_id
 
-        self.page_param = page_param
-        self.start_page = start_page
-        self.page_increment = page_increment
         self.has_url_suffix = has_url_suffix
         self.url_suffix = url_suffix
 
-    def scrape_discussions_from_forum(self, discussion_class: str, full_discussion_class: bool):
+    def scrape_discussions_from_forum(self, discussion_class: str, full_discussion_class: bool, pagination_class: str):
         all_discussions = []
-        page_number = self.start_page
-        last_discussion_items = None
+
+        # First determine the pages to parse through
+        forum_url = BeautifulSoup(requests.get(self.base_url).content, 'html.parser')
+
+        pagination = forum_url.find(class_=lambda x: x == pagination_class)
+        pagination_texts = extract_text_by_class_split(pagination)
+        pagination_pages = [int(x) for x in pagination_texts if x.isdigit()]
+
+        start_page = 1
+        end_page = max(pagination_pages)
+
+        page = start_page
 
         while True:
+            if page > end_page:
+                break
+            href = find_href_by_text(pagination, str(page))
             if self.has_url_suffix:
-                page_url = self.base_url + self.page_param + str(page_number) + self.url_suffix
+                if page == 1:
+                    page_url = self.base_url + self.url_suffix
+                else:
+                    page_url = create_discussion_url(self.base_url, href) + self.url_suffix
             else:
-                page_url = self.base_url + self.page_param + str(page_number)
-
+                if page == 1:
+                    page_url = self.base_url
+                else:
+                    page_url = create_discussion_url(self.base_url, href)
+            print(page_url)
             forum_url = BeautifulSoup(requests.get(page_url).content, 'html.parser')
 
             if full_discussion_class:
@@ -53,18 +65,12 @@ class ForumCollector(abc.ABC):
             else:
                 discussion_items = forum_url.find_all(class_=lambda x: x and x.startswith(discussion_class))
 
-            # Check if the current list of items is the same as the previous list of items
-            if last_discussion_items and discussion_items == last_discussion_items:
-                break
-
             all_discussions.extend(discussion_items)
-            last_discussion_items = discussion_items
-            page_number += self.page_increment
+            page += 1
 
         return all_discussions
 
-    def scrape_messages_from_discussion(self, message_class: str, full_message_class: bool,
-                                        page_param: str = None, start_page: str = None, page_increment: str = None,
+    def scrape_messages_from_discussion(self, message_class: str, full_message_class: bool, pagination_class: str,
                                         via_link: bool = False, discussion_link: str = None, discussion_id: int = None):
         if not via_link:
             db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
@@ -74,38 +80,46 @@ class ForumCollector(abc.ABC):
 
             discussion_link = discussion["link"]
 
-        if page_param is None:
-            page_param = self.page_param
-        if start_page is None:
-            start_page = self.start_page
-        if page_increment is None:
-            page_increment = self.page_increment
-
         all_messages = []
-        page_number = start_page
-        last_message_items = None
+
+        # First determine the pages to parse through
+        forum_url = BeautifulSoup(requests.get(discussion_link).content, 'html.parser')
+
+        pagination = forum_url.find(class_=lambda x: x == pagination_class)
+        pagination_texts = extract_text_by_class_split(pagination)
+        pagination_pages = [int(x) for x in pagination_texts if x.isdigit()]
+
+        start_page = 1
+        end_page = max(pagination_pages)
+
+        page = start_page
 
         while True:
+            print(page)
+            pagination = forum_url.find(class_=lambda x: x == pagination_class)
+            if page > end_page:
+                break
+            href = find_href_by_text(pagination, str(page))
             if self.has_url_suffix:
-                page_url = discussion_link + page_param + str(page_number) + self.url_suffix
+                if page == 1:
+                    page_url = discussion_link + self.url_suffix
+                else:
+                    page_url = create_discussion_url(discussion_link, href) + self.url_suffix
             else:
-                page_url = discussion_link + page_param + str(page_number)
-
+                if page == 1:
+                    page_url = discussion_link
+                else:
+                    page_url = create_discussion_url(discussion_link, href)
             print(page_url)
-            forum_url = BeautifulSoup(requests.get(page_url).content, 'html.parser')
+            discussion_url = BeautifulSoup(requests.get(page_url).content, 'html.parser')
 
             if full_message_class:
-                message_items = forum_url.find_all(class_=lambda x: x == message_class)
+                message_items = discussion_url.find_all(class_=lambda x: x == message_class)
             else:
-                message_items = forum_url.find_all(class_=lambda x: x and x.startswith(message_class))
-
-            # Check if the current list of items is the same as the previous list of items
-            if last_message_items and message_items == last_message_items:
-                break
+                message_items = discussion_url.find_all(class_=lambda x: x and x.startswith(message_class))
 
             all_messages.extend(message_items)
-            last_message_items = message_items
-            page_number += page_increment
+            page += 1
 
         return {"messages": all_messages, "discussion_id": discussion_id, "discussion_link": discussion_link}
 
@@ -131,17 +145,27 @@ class ForumCollector(abc.ABC):
         }
 
     def return_message_info_from_scraped(self, message, text_class: str, date_class: str, author_class: str,
-                                         discussion_id: int):
+                                         only_discussion_link: bool = False, discussion_link: str = None,
+                                         discussion_id: int = None):
         message_text = extract_text_by_class(message, text_class)
         message_date = extract_text_by_class(message, date_class)
         message_author = extract_text_by_class(message, author_class)
 
-        return {
-            "text": message_text,
-            "date": message_date,
-            "author": message_author,
-            "discussion_id": discussion_id
-        }
+        if only_discussion_link:
+            return {
+                "text": message_text,
+                "date": message_date,
+                "author": message_author,
+                "discussion_link": discussion_link
+            }
+
+        else:
+            return {
+                "text": message_text,
+                "date": message_date,
+                "author": message_author,
+                "discussion_id": discussion_id
+            }
 
     def store_discussion_in_database(self, discussion):
         db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
@@ -166,44 +190,4 @@ class ForumCollector(abc.ABC):
             user_id,
             message["discussion_id"]
         )
-        db.close()
-
-    def new_discussions_via_forumlink(self, discussion_class: str, full_discussion_class: bool,
-                                      discussion_name_class: str, discussion_creation_date_class: str,
-                                      discussion_views_class: str, discussion_replies_class: str,
-                                      discussion_last_post_time_class: str):
-        discussions = self.scrape_discussions_from_forum(discussion_class, full_discussion_class)
-        for discussion in discussions:
-            discussion_info = self.return_discussion_info_from_scraped(discussion, discussion_name_class,
-                                                                       discussion_creation_date_class,
-                                                                       discussion_views_class, discussion_replies_class,
-                                                                       discussion_last_post_time_class)
-            self.store_discussion_in_database(discussion_info)
-
-    def new_messages_via_discussionlink(self, discussion_link: str, message_class: str, full_message_class: bool,
-                                        message_text_class: str, message_date_class: str, message_author_class: str):
-        db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
-        db.connect()
-        discussion_info = db.select_discussion(via_link=True, link=discussion_link)
-
-        if discussion_info is None:
-            raise Exception("Discussion not found in database")
-
-        messages = self.scrape_messages_from_discussion(discussion_link=discussion_link, message_class=message_class,
-                                                        full_message_class=full_message_class, via_link=True)[
-            "messages"]
-        for message in messages:
-            message_info = self.return_message_info_from_scraped(message, message_text_class, message_date_class,
-                                                                 message_author_class, discussion_info["id"])
-
-            author = db.select_author_by_username_and_forum_id(message_info["author"], self.identification)
-
-            if author is None:
-                db.add_author(message_info["author"], self.identification)
-                author_id = db.select_author_by_username_and_forum_id(message_info["author"], self.identification)["id"]
-            else:
-                author_id = author["id"]
-
-            self.store_message_in_database(message_info, author_id)
-
         db.close()
