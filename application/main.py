@@ -2,6 +2,7 @@ from A_DataCollectors.ForumCollector.forum_collector import ForumCollector
 from A_DataCollectors.ForumCollector.forum_application import ForumApplication
 from B_Database.my_sql import DatabaseManager
 from C_DataProcessors.text_preprocessor import TextPreprocessor
+from D_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
 
 if __name__ == "__main__":
     def test_collecting():
@@ -74,6 +75,12 @@ if __name__ == "__main__":
                "centaurus very quickly. There is a free program that will allow you to look at the stars from 'any' position " \
                "in space and, therefore, see exactly how constellations change for yourself. See: Celestia: Home"
 
-        print(relation_extraction_preprocessor.preprocess(text))
+        return summarization_preprocessor.preprocess(text)
 
-    test_preprocessing()
+    def test_analyzing():
+        extractive_summarizer = ExtractiveSummarizer(test_preprocessing())
+
+        print(extractive_summarizer.lead_3())
+
+
+    test_analyzing()
