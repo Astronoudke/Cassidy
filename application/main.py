@@ -57,8 +57,9 @@ if __name__ == "__main__":
 
     def test_preprocessing():
         summarization_steps = ['clean_data', 'split_sentences']
-        relation_extraction_steps = ['clean_data', 'case_folding', 'tokenize', 'pos_tagging', 'filter_pos_tagged']
+        relation_extraction_steps = ['clean_data', 'case_folding', 'split_sentences', 'tokenize_sentences']
         sentiment_analysis_steps = ['clean_data', 'case_folding', 'tokenize', 'remove_stop_words', 'lemmatize']
+        word_frequency_steps = ['clean_data', 'case_folding', 'tokenize','pos_tagging', 'filter_pos_tagged', 'lemmatize']
 
         summarization_preprocessor = TextPreprocessor(summarization_steps)
         relation_extraction_preprocessor = TextPreprocessor(relation_extraction_steps)
@@ -76,7 +77,7 @@ if __name__ == "__main__":
                "centaurus very quickly. There is a free program that will allow you to look at the stars from 'any' position " \
                "in space and, therefore, see exactly how constellations change for yourself. See: Celestia: Home"
 
-        return summarization_preprocessor.preprocess(text)
+        return relation_extraction_preprocessor.preprocess(text)
 
     def test_analyzing():
         extractive_summarizer = ExtractiveSummarizer(test_preprocessing())
@@ -89,4 +90,4 @@ if __name__ == "__main__":
         print(rouge.state_bills())
 
 
-    test_evaluating()
+    print(test_preprocessing())
