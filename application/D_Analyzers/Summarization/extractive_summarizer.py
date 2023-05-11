@@ -1,8 +1,5 @@
 import networkx as nx
 from nltk.corpus import stopwords
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import TfidfVectorizer
-import numpy as np
 
 from .functions import TextRank
 
@@ -41,4 +38,4 @@ class ExtractiveSummarizer:
             summarize_text.append(ranked_sentence[i][1])
 
         # Output the summarize text
-        return ". ".join(summarize_text) + "."
+        return ". ".join(summarize_text)

@@ -32,7 +32,7 @@ class TextRank:
 
         return 1 - cosine_similarity([vector1], [vector2])
 
-    def build_similarity_matrix(self, sentences, stopwords=None):
+    def build_similarity_matrix(self, sentences: list, stopwords=None):
         # Create an empty similarity matrix
         similarity_matrix = np.zeros((len(sentences), len(sentences)))
 

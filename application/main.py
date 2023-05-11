@@ -3,6 +3,7 @@ from A_DataCollectors.ForumCollector.forum_application import ForumApplication
 from B_Database.my_sql import DatabaseManager
 from C_DataProcessors.text_preprocessor import TextPreprocessor
 from D_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
+from E_Evaluate.Summarization.summarization_evaluator import ROUGE
 
 if __name__ == "__main__":
     def test_collecting():
@@ -81,6 +82,12 @@ if __name__ == "__main__":
         extractive_summarizer = ExtractiveSummarizer(test_preprocessing())
 
         print(extractive_summarizer.textrank())
+
+    def test_evaluating():
+        model = ExtractiveSummarizer(test_preprocessing()).textrank()
+        rouge = ROUGE(model)
+
+        print(rouge.state_bills())
 
 
     test_analyzing()
