@@ -3,7 +3,6 @@ from bs4 import NavigableString, Tag
 from datetime import datetime
 
 
-
 def extract_text_by_class(soup, class_: str):
     elements = soup.find_all(class_=class_)
     texts = []

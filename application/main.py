@@ -80,7 +80,7 @@ if __name__ == "__main__":
     def test_analyzing():
         extractive_summarizer = ExtractiveSummarizer(test_preprocessing())
 
-        print(extractive_summarizer.lead_3())
+        print(extractive_summarizer.textrank())
 
 
     test_analyzing()
