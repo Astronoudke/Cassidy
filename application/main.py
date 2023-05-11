@@ -81,13 +81,12 @@ if __name__ == "__main__":
     def test_analyzing():
         extractive_summarizer = ExtractiveSummarizer(test_preprocessing())
 
-        print(extractive_summarizer.textrank())
+        print(extractive_summarizer.summarize('textrank'))
 
     def test_evaluating():
-        model = ExtractiveSummarizer(test_preprocessing()).textrank()
-        rouge = ROUGE(model)
+        rouge = ROUGE('textrank')
 
         print(rouge.state_bills())
 
 
-    test_analyzing()
+    test_evaluating()

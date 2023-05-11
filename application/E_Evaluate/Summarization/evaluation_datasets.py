@@ -17,28 +17,16 @@ class StateBills:
             data = {
                 "text": row["text"],
                 "reference_summary": self.text_preprocessor.preprocess(row["summary"]),
-                "title": row["title"],
                 'model_summary': ''
             }
 
             billsum_dict[index] = data
 
-        return billsum_dict
+        # return first ten items of billsun_dict
+        return {k: billsum_dict[k] for k in list(billsum_dict)[:10]}
 
 class ScientificPapers:
     pass
 
 class OnlineForumDiscussions:
     pass
-
-
-billsum = load_dataset("billsum", split="ca_test")
-
-num_rows = len(billsum)
-print("Number of rows:", num_rows)
-
-example_index = 0  # Index of the example you want to access
-example = billsum[example_index]
-print("Example text:", example["text"])
-print("Example summary:", example["summary"])
-print("Example title:", example["title"])

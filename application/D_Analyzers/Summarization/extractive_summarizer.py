@@ -9,29 +9,33 @@ class ExtractiveSummarizer:
         self.sentences = sentences
         self.text_rank = TextRank()
 
-    def lead_3(self):
+    def summarize(self, model, top_n=3):
+        summarization = getattr(self, model)(self.sentences, top_n)
+        return summarization
+
+    def lead_3(self, sentences, top_n=3):
         """
         Returns the first three sentences of the text.
         :return:
         """
-        summary = ". ".join(self.sentences[:3])
+        summary = ". ".join(sentences[:3])
         return summary
 
-    def textrank(self, top_n=3):
+    def textrank(self, sentences, top_n=3):
         stop_words = stopwords.words('english')
 
         # Here you will include the 'sentence_similarity' and 'build_similarity_matrix' functions
         # as nested functions or defined them separately
 
         # Build the similarity matrix
-        sentence_similarity_matrix = self.text_rank.build_similarity_matrix(self.sentences, stop_words)
+        sentence_similarity_matrix = self.text_rank.build_similarity_matrix(sentences, stop_words)
 
         # Rank sentences in similarity matrix
         sentence_similarity_graph = nx.from_numpy_array(sentence_similarity_matrix)
         scores = nx.pagerank(sentence_similarity_graph)
 
         # Sort the rank and pick top sentences
-        ranked_sentence = sorted(((scores[i], s) for i, s in enumerate(self.sentences)), reverse=True)
+        ranked_sentence = sorted(((scores[i], s) for i, s in enumerate(sentences)), reverse=True)
 
         summarize_text = []
         for i in range(top_n):
