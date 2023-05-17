@@ -1,7 +1,8 @@
 from A_DataCollectors.ForumCollector.forum_collector import ForumCollector
 from A_DataCollectors.ForumCollector.forum_application import ForumApplication
+from A_DataCollectors.ScientificLiteratureCollector.scientific_literature_collector import ScientificLiteratureCollector
 from B_Database.my_sql import DatabaseManager
-from C_DataProcessors.text_preprocessor import TextPreprocessor
+from C_DataProcessors.ForumDataProcessor.forum_data_processor import ForumDataProcessor
 from D_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
 from E_Evaluate.Summarization.summarization_evaluator import ROUGE
 
@@ -61,9 +62,9 @@ if __name__ == "__main__":
         sentiment_analysis_steps = ['clean_data', 'case_folding', 'tokenize', 'remove_stop_words', 'lemmatize']
         word_frequency_steps = ['clean_data', 'case_folding', 'tokenize','pos_tagging', 'filter_pos_tagged', 'lemmatize']
 
-        summarization_preprocessor = TextPreprocessor(summarization_steps)
-        relation_extraction_preprocessor = TextPreprocessor(relation_extraction_steps)
-        sentiment_analysis_preprocessor = TextPreprocessor(sentiment_analysis_steps)
+        summarization_preprocessor = ForumDataProcessor(summarization_steps)
+        relation_extraction_preprocessor = ForumDataProcessor(relation_extraction_steps)
+        sentiment_analysis_preprocessor = ForumDataProcessor(sentiment_analysis_steps)
 
         text = "Hey, I just found the following. Hope it helps: Richard Adkins, Amateur astronomer for over half a century. " \
                "Answered Aug 21, 2015 https://www.quora.com/How-far-would-you-have-to-go-for-the-constellations-to-appear" \
