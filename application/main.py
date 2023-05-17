@@ -87,7 +87,6 @@ if __name__ == "__main__":
     def test_evaluating():
         rouge = ROUGE('textrank')
 
-        print(rouge.state_bills())
+        print(rouge.scientific_papers())
 
-
-    print(test_preprocessing())
+    print(test_evaluating())

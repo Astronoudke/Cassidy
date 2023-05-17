@@ -53,6 +53,9 @@ class TextPreprocessor:
     def tokenize_sentences(self, sentences):
         return [word_tokenize(sentence) for sentence in sentences]
 
+    def join_tokens(self, tokens):
+        return " ".join(tokens)
+
     def pos_tagging(self, words):
         # Requires tokenization
         return pos_tag(words)
