@@ -17,7 +17,7 @@ nltk.download('stopwords')
 lemmatizer = WordNetLemmatizer()
 
 
-class TextPreprocessor:
+class ScientificLiteratureDataProcessor:
     def __init__(self, steps):
         self.steps = steps
 
@@ -25,12 +25,11 @@ class TextPreprocessor:
         for step in self.steps:
             text = getattr(self, step)(text)
         return text
-
+    
     def extract_main_body(self, text):
         # Define start and end markers
         start_markers = ["abstract", "Abstract", "ABSTRACT"]
-        end_markers = ["acknowledgements", "Acknowledgements", "ACKNOWLEDGEMENTS", "references", "References",
-                       "REFERENCES"]
+        end_markers = ["acknowledgements", "Acknowledgements", "ACKNOWLEDGEMENTS", "references", "References", "REFERENCES"]
 
         # Find the start of the main body
         start_idx = len(text)
@@ -82,9 +81,6 @@ class TextPreprocessor:
     def tokenize_sentences(self, sentences):
         return [word_tokenize(sentence) for sentence in sentences]
 
-    def join_tokens(self, tokens):
-        return " ".join(tokens)
-
     def pos_tagging(self, words):
         # Requires tokenization
         return pos_tag(words)
@@ -103,6 +99,3 @@ class TextPreprocessor:
 
     def lemmatize(self, words):
         return [lemmatizer.lemmatize(word) for word in words]
-
-    def join_words(self, words):
-        return " ".join(words)

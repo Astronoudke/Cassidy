@@ -17,42 +17,13 @@ nltk.download('stopwords')
 lemmatizer = WordNetLemmatizer()
 
 
-class TextPreprocessor:
+class ForumDataProcessor:
     def __init__(self, steps):
         self.steps = steps
 
     def preprocess(self, text):
         for step in self.steps:
             text = getattr(self, step)(text)
-        return text
-
-    def extract_main_body(self, text):
-        # Define start and end markers
-        start_markers = ["abstract", "Abstract", "ABSTRACT"]
-        end_markers = ["acknowledgements", "Acknowledgements", "ACKNOWLEDGEMENTS", "references", "References",
-                       "REFERENCES"]
-
-        # Find the start of the main body
-        start_idx = len(text)
-        for marker in start_markers:
-            idx = text.find(marker)
-            if idx != -1 and idx < start_idx:
-                start_idx = idx
-
-        # Find the end of the main body
-        end_idx = len(text)
-        for marker in end_markers:
-            idx = text.find(marker)
-            if idx != -1 and idx < end_idx:
-                end_idx = idx
-
-        # Extract the main body
-        if start_idx < end_idx:
-            text = text[start_idx:end_idx]
-        else:
-            # If no valid start and end markers were found, return the original text
-            text = text
-
         return text
 
     def clean_data(self, text):
@@ -82,9 +53,6 @@ class TextPreprocessor:
     def tokenize_sentences(self, sentences):
         return [word_tokenize(sentence) for sentence in sentences]
 
-    def join_tokens(self, tokens):
-        return " ".join(tokens)
-
     def pos_tagging(self, words):
         # Requires tokenization
         return pos_tag(words)
@@ -103,6 +71,3 @@ class TextPreprocessor:
 
     def lemmatize(self, words):
         return [lemmatizer.lemmatize(word) for word in words]
-
-    def join_words(self, words):
-        return " ".join(words)
