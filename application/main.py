@@ -3,6 +3,8 @@ from A_DataCollectors.ForumCollector.forum_application import ForumApplication
 from B_Database.my_sql import DatabaseManager
 from C_DataProcessors.text_preprocessor import TextPreprocessor
 from D_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
+from D_Analyzers.Relation_Extraction.relation_extractor import RelationExtractor
+from D_Analyzers.Sentiment_Analysis.sentiment_analyzer import SentimentAnalyzer
 from E_Evaluate.Summarization.summarization_evaluator import ROUGE
 
 if __name__ == "__main__":
@@ -33,10 +35,7 @@ if __name__ == "__main__":
         ds = app.collect_discussions_by_forum_link(
             discussion_class="structItem structItem--thread js-trendingThreadItem",
             full_discussion_class=False, pagination_class="pageNav-main",
-            discussion_name_class="structItem-title", discussion_creation_date_class="u-dt",
-            discussion_views_class="",
-            discussion_replies_class="pairs pairs--justified",
-            discussion_last_post_time_class="structItem-latestDate u-dt",
+            discussion_name_class="structItem-title",
             store_in_db=True,
             return_discussions=True)
 
@@ -48,7 +47,6 @@ if __name__ == "__main__":
             full_message_class=False,
             pagination_class="pageNav-main",
             message_text_class="bbWrapper",
-            message_date_class="u-dt",
             message_author_class="username",
             store_in_db=True,
             return_messages=True)
@@ -79,8 +77,8 @@ if __name__ == "__main__":
 
         return relation_extraction_preprocessor.preprocess(text)
 
-    def test_analyzing():
-        extractive_summarizer = ExtractiveSummarizer(test_preprocessing())
+    def test_analyzing(preprocessed_text):
+        extractive_summarizer = ExtractiveSummarizer(preprocessed_text)
 
         print(extractive_summarizer.summarize('textrank'))
 
@@ -90,4 +88,32 @@ if __name__ == "__main__":
         print(rouge.state_bills())
 
 
-    print(test_preprocessing())
+    def test_relation_extractor():
+        # Test data
+        sentences = [
+            ['the', 'cat', 'sat', 'on', 'the', 'mat'],
+            ['the', 'cat', 'ate', 'the', 'mouse'],
+            ['the', 'mouse', 'ran', 'away'],
+            ['the', 'cat', 'chased', 'the', 'mouse'],
+            ['the', 'dog', 'barked', 'at', 'the', 'cat']
+        ]
+
+        # Instantiate the RelationExtractor
+        extractor = RelationExtractor(sentences)
+
+        # Compute co-occurrences
+        co_occurrences = extractor.extract("co_occurrence")
+
+        return co_occurrences
+
+    def test_sentiment():
+        analyzer = SentimentAnalyzer("I really love this movie. The plot was exciting and the acting was excellent!")
+        polarity = analyzer.analyze('stanza_analysis')
+
+        return polarity
+
+    test_collecting()
+    text = test_preprocessing()
+    test_analyzing(text)
+
+

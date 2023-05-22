@@ -1,5 +1,4 @@
 from rouge import Rouge
-from datasets import load_dataset
 
 from .evaluation_datasets import StateBills
 from C_DataProcessors.text_preprocessor import TextPreprocessor

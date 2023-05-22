@@ -66,10 +66,6 @@ class DatabaseManager:
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255),
             link VARCHAR(255),
-            creation_date DATE,
-            views INT,
-            replies INT,
-            last_post_time TIMESTAMP,
             forum_id INT,
             FOREIGN KEY (forum_id) REFERENCES forums(id)
         )
@@ -191,17 +187,16 @@ class DatabaseManager:
         self.cursor.execute(query, (id,))
         self.cnx.commit()
 
-    def add_discussion(self, name, link, creation_date, views, replies, last_post_time, forum_id):
-        query = "INSERT INTO discussions (name, link, creation_date, views, replies, last_post_time, forum_id) " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        self.cursor.execute(query, (name, link, creation_date, views, replies, last_post_time, forum_id))
+    def add_discussion(self, name, link, forum_id):
+        query = "INSERT INTO discussions (name, link, forum_id) " \
+                "VALUES (%s, %s, %s)"
+        self.cursor.execute(query, (name, link, forum_id))
         self.cnx.commit()
         return self.cursor.lastrowid
 
-    def edit_discussion(self, id, name, link, creation_date, views, replies, last_post_time):
-        query = "UPDATE discussions SET name = %s, link = %s, creation_date = %s, views = %s, replies = %s, " \
-                "last_post_time = %s WHERE id = %s"
-        self.cursor.execute(query, (name, link, creation_date, views, replies, last_post_time, id))
+    def edit_discussion(self, id, name, link):
+        query = "UPDATE discussions SET name = %s, link = %s WHERE id = %s"
+        self.cursor.execute(query, (name, link, id))
         self.cnx.commit()
 
     def select_discussion(self, via_id: bool = False, via_link: bool = False, id: str = None, link: str = None):
@@ -219,11 +214,7 @@ class DatabaseManager:
                 'id': result[0],
                 'name': result[1],
                 'link': result[2],
-                'creation_date': result[3],
-                'views': result[4],
-                'replies': result[5],
-                'last_post_time': result[6],
-                'forum_id': result[7]
+                'forum_id': result[3]
             }
         else:
             return None
@@ -240,11 +231,7 @@ class DatabaseManager:
                     'id': result[0],
                     'name': result[1],
                     'link': result[2],
-                    'creation_date': result[3],
-                    'views': result[4],
-                    'replies': result[5],
-                    'last_post_time': result[6],
-                    'forum_id': result[7]
+                    'forum_id': result[3]
                 })
             return discussions
         else:
@@ -255,9 +242,9 @@ class DatabaseManager:
         self.cursor.execute(query, (id,))
         self.cnx.commit()
 
-    def add_message(self, text, creation_date, author_id, discussion_id):
-        query = "INSERT INTO messages (text, creation_date, author_id, discussion_id) VALUES (%s, %s, %s, %s)"
-        self.cursor.execute(query, (text, creation_date, author_id, discussion_id))
+    def add_message(self, text, author_id, discussion_id):
+        query = "INSERT INTO messages (text, author_id, discussion_id) VALUES (%s, %s, %s)"
+        self.cursor.execute(query, (text, author_id, discussion_id))
         self.cnx.commit()
         return self.cursor.lastrowid
 
@@ -274,7 +261,6 @@ class DatabaseManager:
             return {
                 'id': result[0],
                 'text': result[1],
-                'creation_date': result[2],
                 'author_id': result[3],
                 'discussion_id': result[4]
             }
@@ -292,9 +278,8 @@ class DatabaseManager:
                 messages.append({
                     'id': result[0],
                     'text': result[1],
-                    'creation_date': result[2],
-                    'author_id': result[3],
-                    'discussion_id': result[4]
+                    'author_id': result[2],
+                    'discussion_id': result[3]
                 })
             return messages
         else:
@@ -316,25 +301,27 @@ class DatabaseManager:
                 messages.append({
                     'id': result[0],
                     'text': result[1],
-                    'creation_date': result[2],
-                    'author_id': result[3],
-                    'discussion_id': result[4]
+                    'author_id': result[2],
+                    'discussion_id': result[3]
                 })
             return messages
         else:
             return None
 
-    def select_message_by_discussion_date_author_and_text(self, discussion_id, creation_date, author_id, text):
-        query = "SELECT * FROM messages WHERE discussion_id = %s AND creation_date = %s AND author_id = %s AND text = %s"
-        self.cursor.execute(query, (discussion_id, creation_date, author_id, text))
+    def select_message_by_discussion_date_author_and_text(self, discussion_id, author_id, text):
+        query = "SELECT * FROM messages WHERE discussion_id = %s AND author_id = %s AND text = %s"
+        print(query)
+        print("Discussion id: " + str(discussion_id))
+        print("Author id: " + str(author_id))
+        print("Text: " + str(text))
+        self.cursor.execute(query, (discussion_id, author_id, text))
         result = self.cursor.fetchone()
         if result:
             return {
                 'id': result[0],
                 'text': result[1],
-                'creation_date': result[2],
-                'author_id': result[3],
-                'discussion_id': result[4]
+                'author_id': result[2],
+                'discussion_id': result[3]
             }
         else:
             return None

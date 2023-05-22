@@ -125,38 +125,28 @@ class ForumCollector(abc.ABC):
 
         return {"messages": all_messages}
 
-    def return_discussion_info_from_scraped(self, discussion, name_class: str, creation_date_class: str,
-                                            views_class: str, replies_class: str, last_post_time_class: str):
+    def return_discussion_info_from_scraped(self, discussion, name_class: str):
         discussion_name = extract_text_by_class(discussion, name_class)
         discussion_link = extract_href_by_class(discussion, name_class)
-        discussion_creation_date = extract_text_by_class(discussion, creation_date_class)
-        discussion_views = clean_view_or_reply_amount(extract_text_by_class(discussion, views_class))
-        discussion_replies = clean_view_or_reply_amount(extract_text_by_class(discussion, replies_class))
-        discussion_last_post_time = extract_text_by_class(discussion, last_post_time_class)
 
         discussion_link = create_discussion_url(self.base_url, discussion_link[0])
 
         return {
             "name": discussion_name,
             "link": discussion_link,
-            "creation date": discussion_creation_date,
-            "views": discussion_views,
-            "replies": discussion_replies,
-            "last_post_time": discussion_last_post_time,
             "forum_id": self.identification
         }
 
-    def return_message_info_from_scraped(self, message, text_class: str, date_class: str, author_class: str,
+    def return_message_info_from_scraped(self, message, text_class: str, author_class: str,
                                          only_discussion_link: bool = False, discussion_link: str = None,
                                          discussion_id: int = None):
         message_text = extract_text_by_class(message, text_class)
-        message_date = extract_text_by_class(message, date_class)
+
         message_author = extract_text_by_class(message, author_class)
 
         if only_discussion_link:
             return {
                 "text": message_text,
-                "date": message_date,
                 "author": message_author,
                 "discussion_link": discussion_link
             }
@@ -164,7 +154,6 @@ class ForumCollector(abc.ABC):
         else:
             return {
                 "text": message_text,
-                "date": message_date,
                 "author": message_author,
                 "discussion_id": discussion_id
             }
@@ -175,10 +164,6 @@ class ForumCollector(abc.ABC):
         db.add_discussion(
             discussion["name"],
             discussion["link"],
-            discussion["creation date"],
-            discussion["views"],
-            discussion["replies"],
-            discussion["last_post_time"],
             discussion["forum_id"]
         )
         db.close()
@@ -188,7 +173,6 @@ class ForumCollector(abc.ABC):
         db.connect()
         db.add_message(
             message["text"],
-            message["date"],
             user_id,
             message["discussion_id"]
         )
