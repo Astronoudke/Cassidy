@@ -28,14 +28,29 @@ class TextPreprocessor:
 
     def preprocess_grobid(self, output):
         new_data = {"title": output['title']}
+        heading_counts = {}
+
         for section in output['sections']:
-            new_data[section['heading']] = section['text']
+            heading = section['heading']
+            # If the heading already exists, create a new unique key
+            if heading in heading_counts:
+                heading_counts[heading] += 1
+                heading += f"_{heading_counts[heading]}"
+            else:
+                heading_counts[heading] = 0
+
+            new_data[heading] = section['text']
 
         new_data['title'] = self.preprocess_string(new_data['title'])
         for key in new_data:
             if key != 'title':
                 new_data[key] = self.preprocess_string(new_data[key])
         return new_data
+
+    def concatenate_sections_grobid(self, preprocessed_output):
+        sections_text = [text for key, text in preprocessed_output.items()]
+        combined_text = ". ".join(sections_text)
+        return combined_text
 
     def extract_main_body(self, text):
         # Define start and end markers
@@ -99,11 +114,20 @@ class TextPreprocessor:
         return " ".join(tokens)
 
     def pos_tagging(self, words):
-        # Requires tokenization
-        return pos_tag(words)
+        # If it's a list of words (strings)
+        if isinstance(words[0], str):
+            return pos_tag(words)
+        # If it's a list of lists
+        elif isinstance(words[0], list):
+            return [pos_tag(word_list) for word_list in words]
 
     def filter_pos_tagged(self, pos_tagged_text, tags=['NN', 'NNS', 'NNP', 'NNPS']):
-        return [word for word, tag in pos_tagged_text if tag in tags]
+        # If it's a list of (word, tag) tuples
+        if isinstance(pos_tagged_text[0], tuple):
+            return [word for word, tag in pos_tagged_text if tag in tags]
+        # If it's a list of lists
+        elif isinstance(pos_tagged_text[0], list):
+            return [[word for word, tag in word_list if tag in tags] for word_list in pos_tagged_text]
 
     def categorize_words(self, words):
         # implement your word categorization here

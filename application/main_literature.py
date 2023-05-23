@@ -26,7 +26,6 @@ if __name__ == "__main__":
         category_id = db.add_category('Linguistics')
         article = test_collecting()
         article_id = db.add_article(article, category_id)
-        print(article_id)
 
         db.close()
 
@@ -46,7 +45,10 @@ if __name__ == "__main__":
 
     create_table()
     storing = test_store_article()
+    # Here the issue does not appear yet
+
     article_dct = test_preprocessing(storing)
+    print(article_dct)
 
     new_dict = {}
     for header, sentences in article_dct.items():
@@ -55,7 +57,6 @@ if __name__ == "__main__":
 
         new_dict[header] = summary
 
-    print(new_dict)
 
 
 

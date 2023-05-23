@@ -18,14 +18,15 @@ class ExtractiveSummarizer:
         Returns the first three sentences of the text.
         :return:
         """
-        summary = " ".join(sentences[:min(3, len(sentences))])
-        return summary
+        summary = " ".join(sentence.rstrip('.') for sentence in sentences[:min(3, len(sentences))])
+        return summary + '.'
 
     def textrank(self, sentences, top_n=3, order_by_rank=True):
         stop_words = stopwords.words('english')
 
         if len(sentences) <= top_n:
-            return ". ".join(sentences)
+            # Remove trailing periods and join sentences
+            return " ".join(sentence.rstrip('.') for sentence in sentences) + '.'
 
         # Build the similarity matrix
         sentence_similarity_matrix = self.text_rank.build_similarity_matrix(sentences, stop_words)
@@ -46,4 +47,4 @@ class ExtractiveSummarizer:
             summarize_text = [sentences[i] for i in original_order_indices]
 
         # Output the summarize text
-        return ". ".join(summarize_text)
+        return " ".join(summarize_text) + '.'
