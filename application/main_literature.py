@@ -18,6 +18,7 @@ if __name__ == "__main__":
         db.connect()
 
         db.create_articles_table()
+
     def test_store_article():
         db = DatabaseManager(user='root', password='', host='localhost', database_name='test_cassidy')
         db.connect()
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     new_dict = {}
     for header, sentences in article_dct.items():
         es = ExtractiveSummarizer(sentences)
-        summary = es.summarize('textrank', top_n=1)
+        summary = es.summarize('textrank', top_n=3, order_by_rank=False)
 
         new_dict[header] = summary
 

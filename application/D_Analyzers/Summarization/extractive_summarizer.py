@@ -9,20 +9,19 @@ class ExtractiveSummarizer:
         self.sentences = sentences
         self.text_rank = TextRank()
 
-    def summarize(self, model, top_n=3):
-        summarization = getattr(self, model)(self.sentences, top_n)
+    def summarize(self, model, top_n=3, order_by_rank=True):
+        summarization = getattr(self, model)(self.sentences, top_n, order_by_rank)
         return summarization
 
-    def lead_3(self, sentences):
+    def lead_3(self, sentences, top_n=3, order_by_rank=True):
         """
         Returns the first three sentences of the text.
         :return:
         """
-        summary = ". ".join(sentences[:min(3, len(sentences))])
+        summary = " ".join(sentences[:min(3, len(sentences))])
         return summary
 
-
-    def textrank(self, sentences, top_n=3):
+    def textrank(self, sentences, top_n=3, order_by_rank=True):
         stop_words = stopwords.words('english')
 
         if len(sentences) <= top_n:
@@ -38,9 +37,13 @@ class ExtractiveSummarizer:
         # Sort the rank and pick top sentences
         ranked_sentence = sorted(((scores[i], s) for i, s in enumerate(sentences)), reverse=True)
 
-        summarize_text = []
-        for i in range(top_n):
-            summarize_text.append(ranked_sentence[i][1])
+        # Pick top sentences based on user preference for ranking or original order
+        if order_by_rank:
+            summarize_text = [ranked_sentence[i][1] for i in range(top_n)]
+        else:
+            # Get the indices of the top_n sentences in their original order
+            original_order_indices = sorted([i for i in range(len(sentences)) if sentences[i] in [item[1] for item in ranked_sentence[:top_n]]])
+            summarize_text = [sentences[i] for i in original_order_indices]
 
         # Output the summarize text
         return ". ".join(summarize_text)
