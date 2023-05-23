@@ -12,16 +12,24 @@ nltk.download('stopwords')
 
 
 class ScientificLiteratureCollector:
-    def __init__(self, pdf_url: str):
-        self.pdf_url = pdf_url
+    def __init__(self, path: str):
+        self.path = path
 
+    def collect(self, format, source_type, method):
+        method_name = f"read_{format}_from_{source_type}_using_{method}"
+        summarization = getattr(self, method_name)(self.path)
+        return summarization
 
-    def read_pdf_from_url_scipy(self):
-        article_dict = scipdf.parse_pdf_to_dict(self.pdf_url, as_list=False)
+    def read_pdf_from_url_using_scipy(self, path):
+        article_dict = scipdf.parse_pdf_to_dict(path, as_list=False)
         return article_dict
 
-    def read_pdf_from_url(self):
-        response = requests.get(self.pdf_url)
+    def read_pdf_from_local_using_scipy(self, path):
+        article_dict = scipdf.parse_pdf_to_dict(path, as_list=False)
+        return article_dict
+
+    def read_pdf_from_url_using_plumber(self, path):
+        response = requests.get(path)
         file = io.BytesIO(response.content)
 
         text_content = ""
@@ -30,9 +38,5 @@ class ScientificLiteratureCollector:
                 text_content += page.extract_text()
 
         return text_content
-
-    def collect(self):
-        raw_text = self.read_pdf_from_url_scipy()
-        return raw_text
 
 # https://arxiv.org/pdf/2305.07672.pdf
