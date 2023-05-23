@@ -100,6 +100,19 @@ class DatabaseManager:
         self.cursor.execute(query)
         self.cnx.commit()
 
+    def create_articles_table(self):
+        query = '''
+        CREATE TABLE IF NOT EXISTS articles (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255),
+            text LONGTEXT,
+            category_id INT,
+            FOREIGN KEY (category_id) REFERENCES categories(id)
+        )
+        '''
+        self.cursor.execute(query)
+        self.cnx.commit()
+
     def clear_category_table(self):
         self.cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
         self.cursor.execute("TRUNCATE TABLE categories;")
@@ -370,5 +383,30 @@ class DatabaseManager:
 
     def delete_author(self, id):
         query = "DELETE FROM authors WHERE id = %s"
+        self.cursor.execute(query, (id,))
+        self.cnx.commit()
+
+    def add_article(self, article_dict, category_id):
+        query = "INSERT INTO articles (title, text, category_id) VALUES (%s, %s, %s)"
+        self.cursor.execute(query, (article_dict['title'], json.dumps(article_dict), category_id))
+        self.cnx.commit()
+        return self.cursor.lastrowid
+
+    def select_article(self, id):
+        query = "SELECT * FROM articles WHERE id = %s"
+        self.cursor.execute(query, (id,))
+        result = self.cursor.fetchone()
+        if result:
+            return {
+                'id': result[0],
+                'title': result[1],
+                'text': json.loads(result[2]),
+                'category_id': result[3]
+            }
+        else:
+            return None
+
+    def delete_article(self, id):
+        query = "DELETE FROM articles WHERE id = %s"
         self.cursor.execute(query, (id,))
         self.cnx.commit()

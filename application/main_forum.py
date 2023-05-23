@@ -2,7 +2,7 @@ from A_DataCollectors.ForumCollector.forum_collector import ForumCollector
 from A_DataCollectors.ForumCollector.forum_application import ForumApplication
 from A_DataCollectors.ScientificLiteratureCollector.scientific_literature_collector import ScientificLiteratureCollector
 from B_Database.my_sql import DatabaseManager
-from C_DataProcessors.ForumDataProcessor.forum_data_processor import ForumDataProcessor
+from C_DataProcessors.text_preprocessor import TextPreprocessor
 from D_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
 from E_Evaluate.Summarization.summarization_evaluator import ROUGE
 
@@ -34,10 +34,7 @@ if __name__ == "__main__":
         ds = app.collect_discussions_by_forum_link(
             discussion_class="structItem structItem--thread js-trendingThreadItem",
             full_discussion_class=False, pagination_class="pageNav-main",
-            discussion_name_class="structItem-title", discussion_creation_date_class="u-dt",
-            discussion_views_class="",
-            discussion_replies_class="pairs pairs--justified",
-            discussion_last_post_time_class="structItem-latestDate u-dt",
+            discussion_name_class="structItem-title",
             store_in_db=True,
             return_discussions=True)
 
@@ -49,7 +46,6 @@ if __name__ == "__main__":
             full_message_class=False,
             pagination_class="pageNav-main",
             message_text_class="bbWrapper",
-            message_date_class="u-dt",
             message_author_class="username",
             store_in_db=True,
             return_messages=True)
@@ -62,9 +58,9 @@ if __name__ == "__main__":
         sentiment_analysis_steps = ['clean_data', 'case_folding', 'tokenize', 'remove_stop_words', 'lemmatize']
         word_frequency_steps = ['clean_data', 'case_folding', 'tokenize','pos_tagging', 'filter_pos_tagged', 'lemmatize']
 
-        summarization_preprocessor = ForumDataProcessor(summarization_steps)
-        relation_extraction_preprocessor = ForumDataProcessor(relation_extraction_steps)
-        sentiment_analysis_preprocessor = ForumDataProcessor(sentiment_analysis_steps)
+        summarization_preprocessor = TextPreprocessor(summarization_steps)
+        relation_extraction_preprocessor = TextPreprocessor(relation_extraction_steps)
+        sentiment_analysis_preprocessor = TextPreprocessor(sentiment_analysis_steps)
 
         text = "Hey, I just found the following. Hope it helps: Richard Adkins, Amateur astronomer for over half a century. " \
                "Answered Aug 21, 2015 https://www.quora.com/How-far-would-you-have-to-go-for-the-constellations-to-appear" \
@@ -78,7 +74,7 @@ if __name__ == "__main__":
                "centaurus very quickly. There is a free program that will allow you to look at the stars from 'any' position " \
                "in space and, therefore, see exactly how constellations change for yourself. See: Celestia: Home"
 
-        return relation_extraction_preprocessor.preprocess(text)
+        return relation_extraction_preprocessor.preprocess_string(text)
 
     def test_analyzing():
         extractive_summarizer = ExtractiveSummarizer(test_preprocessing())

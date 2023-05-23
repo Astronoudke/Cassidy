@@ -21,10 +21,21 @@ class TextPreprocessor:
     def __init__(self, steps):
         self.steps = steps
 
-    def preprocess(self, text):
+    def preprocess_string(self, text):
         for step in self.steps:
             text = getattr(self, step)(text)
         return text
+
+    def preprocess_grobid(self, output):
+        new_data = {"title": output['title']}
+        for section in output['sections']:
+            new_data[section['heading']] = section['text']
+
+        new_data['title'] = self.preprocess_string(new_data['title'])
+        for key in new_data:
+            if key != 'title':
+                new_data[key] = self.preprocess_string(new_data[key])
+        return new_data
 
     def extract_main_body(self, text):
         # Define start and end markers
@@ -60,6 +71,8 @@ class TextPreprocessor:
         text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
         # Remove usernames
         text = re.sub(r'\@\w+|\#', '', text)
+        # Remove newlines
+        text = re.sub(r'\n', '', text)
         # Remove extra whitespace
         text = text.strip()
         text = " ".join(text.split())

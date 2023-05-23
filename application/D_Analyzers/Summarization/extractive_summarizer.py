@@ -13,19 +13,20 @@ class ExtractiveSummarizer:
         summarization = getattr(self, model)(self.sentences, top_n)
         return summarization
 
-    def lead_3(self, sentences, top_n=3):
+    def lead_3(self, sentences):
         """
         Returns the first three sentences of the text.
         :return:
         """
-        summary = ". ".join(sentences[:3])
+        summary = ". ".join(sentences[:min(3, len(sentences))])
         return summary
+
 
     def textrank(self, sentences, top_n=3):
         stop_words = stopwords.words('english')
 
-        # Here you will include the 'sentence_similarity' and 'build_similarity_matrix' functions
-        # as nested functions or defined them separately
+        if len(sentences) <= top_n:
+            return ". ".join(sentences)
 
         # Build the similarity matrix
         sentence_similarity_matrix = self.text_rank.build_similarity_matrix(sentences, stop_words)
