@@ -158,6 +158,16 @@ class ForumCollector(abc.ABC):
                 "discussion_id": discussion_id
             }
 
+    def store_discussion_in_dict(self, discussion):
+        return {"name": discussion["name"], "link": discussion["link"], "forum_id": discussion["forum_id"],
+                "messages": {}}
+
+    def store_message_in_dict(self, message, user_id):
+        message_id = f"{message['author']}_{user_id}"
+        return {message_id: message["text"]}
+
+
+
     def store_discussion_in_database(self, discussion):
         db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
         db.connect()

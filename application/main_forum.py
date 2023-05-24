@@ -8,34 +8,27 @@ from E_Evaluate.Summarization.summarization_evaluator import ROUGE
 
 if __name__ == "__main__":
     def test_collecting():
-        db = DatabaseManager(user='root', password='', host='localhost', database_name='test_cassidy')
-        db.connect()
-
-        db.create_tables()
-
         # Creating a category
-        category_id = db.add_category('Space')
+        category = 'Space'
 
-        forum_id = db.add_forum('Telescopes, Star Charts, & Planetariums',
-                                'https://forums.space.com/forums/telescopes-star-charts-planetariums.64/',
-                                '', category_id)
-        forum = db.select_forum(id=forum_id)
-        db.close()
+        forum = {'id': 1, 'name': 'Telescopes, Star Charts, & Planetariums',
+                 'base_url': 'https://forums.space.com/forums/telescopes-star-charts-planetariums.64/',
+                 'description': '', 'category_id': category}
 
         space_collector = ForumCollector(identification=forum["id"],
-                                       name=forum["name"],
-                                       base_url=forum["base_url"],
-                                       description=forum["description"],
-                                       category_id=forum["category_id"]
-                                       )
+                                         name=forum["name"],
+                                         base_url=forum["base_url"],
+                                         description=forum["description"],
+                                         category_id=forum["category_id"]
+                                         )
 
-        app = ForumApplication(space_collector, db)
+        app = ForumApplication(space_collector)
 
         ds = app.collect_discussions_by_forum_link(
             discussion_class="structItem structItem--thread js-trendingThreadItem",
             full_discussion_class=False, pagination_class="pageNav-main",
             discussion_name_class="structItem-title",
-            store_in_db=True,
+            store_in_dict=True,  # Here's the first change
             return_discussions=True)
 
         print(ds)
@@ -47,7 +40,7 @@ if __name__ == "__main__":
             pagination_class="pageNav-main",
             message_text_class="bbWrapper",
             message_author_class="username",
-            store_in_db=True,
+            store_in_dict=False,  # Here's the second change
             return_messages=True)
 
         print(ds_messages)
@@ -86,4 +79,4 @@ if __name__ == "__main__":
 
         print(rouge.scientific_papers())
 
-    print(test_evaluating())
+    print(test_collecting())
