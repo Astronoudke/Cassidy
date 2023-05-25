@@ -6,8 +6,8 @@ import stanza
 class SentimentAnalyzer:
     def __init__(self, text):
         self.text = text
-        stanza.download('en')  # Download the English model
-        self.nlp = stanza.Pipeline('en')  # Initialize the English pipeline
+        #stanza.download('en')  # Download the English model
+        #self.nlp = stanza.Pipeline('en')  # Initialize the English pipeline
 
     def analyze(self, model):
         analysis = getattr(self, model)(self.text)

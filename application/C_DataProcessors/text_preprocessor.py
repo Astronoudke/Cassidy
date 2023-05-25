@@ -49,12 +49,11 @@ class TextPreprocessor:
 
     def preprocess_forum_discussion(self, discussion):
         new_data = {}
-        print(discussion)
 
         for message_id, message_dict in discussion.items():
-            new_data[message_id] = {}
-            new_data[message_id]['author'] = message_dict['author']
-            new_data[message_id]['text'] = self.preprocess_string(message_dict['text'])
+            new_data[message_id] = self.preprocess_string(message_dict['text'])
+            #new_data[message_id]['author'] = message_dict['author']
+            #new_data[message_id]['text'] = self.preprocess_string(message_dict['text'])
 
         return new_data
 

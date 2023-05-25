@@ -4,6 +4,7 @@ from A_DataCollectors.ScientificLiteratureCollector.scientific_literature_collec
 from B_Database.my_sql import DatabaseManager
 from C_DataProcessors.text_preprocessor import TextPreprocessor
 from D_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
+from D_Analyzers.Sentiment_Analysis.sentiment_analyzer import SentimentAnalyzer
 from E_Evaluate.Summarization.summarization_evaluator import ROUGE
 
 if __name__ == "__main__":
@@ -45,14 +46,25 @@ if __name__ == "__main__":
         return ds_messages
 
     def test_preprocessing(data):
-        summarization_steps = ['clean_data', 'split_sentences']
+        summarization_steps = ['clean_data']
         summarization_preprocessor = TextPreprocessor(summarization_steps)
 
         return summarization_preprocessor.preprocess_forum_discussion(data)
 
+    def test_analyzing(preprocessed_text):
+        new_dict = {}
+        for header, text in preprocessed_text.items():
+            sa = SentimentAnalyzer(text)
+            new_dict[header] = sa.analyze('textblob_analysis')
+
+        return new_dict
+
 
     raw_data = test_collecting()
-    print(test_preprocessing(raw_data))
+    preprocessed_data = test_preprocessing(raw_data)
+    analyzed_data = test_analyzing(preprocessed_data)
+
+    print(analyzed_data)
 
 
 

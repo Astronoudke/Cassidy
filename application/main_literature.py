@@ -21,8 +21,3 @@ if __name__ == "__main__":
     # Here the issue does not appear yet
 
     print(test_preprocessing(test_collecting()))
-
-
-
-
-
