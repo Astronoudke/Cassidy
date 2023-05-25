@@ -1,0 +1,33 @@
+<form action="/" method="post">
+    <select name="source_type">
+        <option value="Scientific article">Scientific article</option>
+        <option value="Online forum discussion">Online forum discussion</option>
+    </select>
+    <br>
+    Link: <input type="text" name="link"><br>
+    Functionality: <br>
+    <select name="functionality">
+        <option value="sentiment_analysis">Sentiment analysis</option>
+        <option value="summarize">Extractive summarization</option>
+        <!-- Add more options as needed -->
+    </select>
+    <br>
+    Message class: <input type="text" name="message_class"><br>
+    Pagination class: <input type="text" name="pagination_class"><br>
+    Message text class: <input type="text" name="message_text_class"><br>
+    Message author class: <input type="text" name="message_author_class"><br>
+
+    Preprocessing steps: <br>
+    <label for="clean_data">Clean Data</label>
+    <input type="checkbox" id="clean_data" name="preprocessing_steps" value="clean_data"><br>
+
+    <label for="case_folding">Case Folding</label>
+    <input type="checkbox" id="case_folding" name="preprocessing_steps" value="case_folding"><br>
+
+    <label for="split_sentences">Sentence splitting</label>
+    <input type="checkbox" id="split_sentences" name="preprocessing_steps" value="split_sentences"><br>
+
+    <!-- Add more checkboxes as needed -->
+
+    <input type="submit" value="Submit">
+</form>
