@@ -1,0 +1,31 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.step {
+    margin: 5px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    cursor: move;
+}
+
+#sortable-container {
+    display: flex;
+}
+
+#preprocessing_steps,
+#selected_steps {
+    flex: 1; /* This makes the divs take up an equal amount of space */
+    min-height: 1px; /* This is necessary for flex items to have a height. You can change it as needed */
+    border: 1px solid black; /* Just for visualization */
+    padding: 10px;
+    margin: 10px;
+}
+
+
+@media (max-width: 600px) {
+    #sortable-container {
+        flex-direction: column;
+    }
+}

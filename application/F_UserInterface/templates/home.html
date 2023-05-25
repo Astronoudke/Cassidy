@@ -1,33 +1,65 @@
-<form action="/" method="post">
-    <select name="source_type">
-        <option value="Scientific article">Scientific article</option>
-        <option value="Online forum discussion">Online forum discussion</option>
-    </select>
-    <br>
-    Link: <input type="text" name="link"><br>
-    Functionality: <br>
-    <select name="functionality">
-        <option value="sentiment_analysis">Sentiment analysis</option>
-        <option value="summarize">Extractive summarization</option>
-        <!-- Add more options as needed -->
-    </select>
-    <br>
-    Message class: <input type="text" name="message_class"><br>
-    Pagination class: <input type="text" name="pagination_class"><br>
-    Message text class: <input type="text" name="message_text_class"><br>
-    Message author class: <input type="text" name="message_author_class"><br>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Preprocessing</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+    <form action="/" method="post">
+            <select name="source_type">
+                <option value="Scientific article">Scientific article</option>
+                <option value="Online forum discussion">Online forum discussion</option>
+            </select>
+            <br>
+            Link: <input type="text" name="link"><br>
+            Functionality: <br>
+            <select name="functionality">
+                <option value="sentiment_analysis">Sentiment analysis</option>
+                <option value="summarize">Extractive summarization</option>
+                <!-- Add more options as needed -->
+            </select>
+            <br>
+            <!-- Other input fields -->
 
-    Preprocessing steps: <br>
-    <label for="clean_data">Clean Data</label>
-    <input type="checkbox" id="clean_data" name="preprocessing_steps" value="clean_data"><br>
+            <h2>Drag and drop your preprocessing steps:</h2>
 
-    <label for="case_folding">Case Folding</label>
-    <input type="checkbox" id="case_folding" name="preprocessing_steps" value="case_folding"><br>
+            <div id="sortable-container">
 
-    <label for="split_sentences">Sentence splitting</label>
-    <input type="checkbox" id="split_sentences" name="preprocessing_steps" value="split_sentences"><br>
+                <div id="preprocessing_steps" class="connectedSortable">
+                    <!-- Include all your steps here -->
+                    <div class="step" id="clean_data">Clean data</div>
+                    <div class="step" id="split_sentences">Split sentences</div>
+                    <div class="step" id="case_folding">Case folding</div>
+                    <div class="step" id="tokenize">Tokenisation of words</div>
+                    <div class="step" id="pos_tagging">POS Tagging</div>
+                    <div class="step" id="filter_pos_tagged">Filter for only Nouns</div>
+                    <!-- Add more steps -->
+                </div>
 
-    <!-- Add more checkboxes as needed -->
+                <div id="selected_steps" class="connectedSortable">
+                    <!-- The steps dragged here will be sent to the server -->
+                </div>
 
-    <input type="submit" value="Submit">
-</form>
+            </div>
+
+            <input type="hidden" id="preprocessing_steps_order" name="preprocessing_steps_order">
+            <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        $(function() {
+            $(".connectedSortable").sortable({
+                connectWith: ".connectedSortable"
+            }).disableSelection();
+
+            $('form').on('submit', function() {
+                var selected_steps = $("#selected_steps").sortable("toArray");
+                $('#preprocessing_steps_order').val(selected_steps);
+            });
+        });
+    </script>
+</body>
+</html>
