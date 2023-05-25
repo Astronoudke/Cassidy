@@ -11,15 +11,14 @@ if __name__ == "__main__":
         # Creating a category
         category = 'Space'
 
-        forum = {'id': 1, 'name': 'Telescopes, Star Charts, & Planetariums',
+        forum = {'name': 'Telescopes, Star Charts, & Planetariums',
                  'base_url': 'https://forums.space.com/forums/telescopes-star-charts-planetariums.64/',
-                 'description': '', 'category_id': category}
+                 'description': '', 'category': category}
 
-        space_collector = ForumCollector(identification=forum["id"],
-                                         name=forum["name"],
+        space_collector = ForumCollector(name=forum["name"],
                                          base_url=forum["base_url"],
                                          description=forum["description"],
-                                         category_id=forum["category_id"]
+                                         category=forum["category"]
                                          )
 
         app = ForumApplication(space_collector)
@@ -31,7 +30,7 @@ if __name__ == "__main__":
             store_in_dict=True,  # Here's the first change
             return_discussions=True)
 
-        print(ds)
+        #print(ds)
 
         ds_messages = app.collect_messages_by_discussion_link(
             discussion_link="https://forums.space.com/threads/constellations-space-travel.29641/",
@@ -43,7 +42,28 @@ if __name__ == "__main__":
             store_in_dict=False,  # Here's the second change
             return_messages=True)
 
-        print(ds_messages)
+        return ds_messages
+
+    def test_preprocessing(data):
+        summarization_steps = ['clean_data', 'split_sentences']
+        summarization_preprocessor = TextPreprocessor(summarization_steps)
+
+        return summarization_preprocessor.preprocess_forum_discussion(data)
+
+
+    raw_data = test_collecting()
+    print(test_preprocessing(raw_data))
+
+
+
+
+
+
+
+
+
+
+
 
     def test_preprocessing():
         summarization_steps = ['clean_data', 'split_sentences']
@@ -79,4 +99,3 @@ if __name__ == "__main__":
 
         print(rouge.scientific_papers())
 
-    print(test_collecting())

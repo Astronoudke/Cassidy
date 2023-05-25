@@ -12,18 +12,17 @@ from B_Database.my_sql import DatabaseManager
 
 
 class ForumCollector(abc.ABC):
-    def __init__(self, identification: int, name: str, base_url: str, description: str, category_id: int,
+    def __init__(self, name: str, base_url: str, description: str, category: str,
                  has_url_suffix: bool = False, url_suffix: str = None):
         """
         :param base_url: The base URL of the forum.
         :param has_url_suffix: Whether the URL has a suffix at the end.
         :param url_suffix: The suffix of the URL. This might be used at the end of the URL (such as .html).
         """
-        self.identification = identification
         self.name = name
         self.base_url = base_url
         self.description = description
-        self.category_id = category_id
+        self.category = category
 
         self.has_url_suffix = has_url_suffix
         self.url_suffix = url_suffix
@@ -73,15 +72,7 @@ class ForumCollector(abc.ABC):
         return all_discussions
 
     def scrape_messages_from_discussion(self, message_class: str, full_message_class: bool, pagination_class: str,
-                                        via_link: bool = False, discussion_link: str = None, discussion_id: int = None):
-        if not via_link:
-            db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
-            db.connect()
-            discussion = db.select_discussion(via_id=True, id=discussion_id)
-            db.close()
-
-            discussion_link = discussion["link"]
-
+                                        discussion_link: str):
         all_messages = []
 
         # First determine the pages to parse through
@@ -134,39 +125,25 @@ class ForumCollector(abc.ABC):
         return {
             "name": discussion_name,
             "link": discussion_link,
-            "forum_id": self.identification
         }
 
-    def return_message_info_from_scraped(self, message, text_class: str, author_class: str,
-                                         only_discussion_link: bool = False, discussion_link: str = None,
-                                         discussion_id: int = None):
+    def return_message_info_from_scraped(self, message, text_class: str, author_class: str, discussion_link: str = None):
         message_text = extract_text_by_class(message, text_class)
 
         message_author = extract_text_by_class(message, author_class)
 
-        if only_discussion_link:
-            return {
+        return {
                 "text": message_text,
                 "author": message_author,
                 "discussion_link": discussion_link
             }
 
-        else:
-            return {
-                "text": message_text,
-                "author": message_author,
-                "discussion_id": discussion_id
-            }
-
     def store_discussion_in_dict(self, discussion):
-        return {"name": discussion["name"], "link": discussion["link"], "forum_id": discussion["forum_id"],
-                "messages": {}}
+        return {"name": discussion["name"], "link": discussion["link"]}
 
     def store_message_in_dict(self, message, user_id):
         message_id = f"{message['author']}_{user_id}"
         return {message_id: message["text"]}
-
-
 
     def store_discussion_in_database(self, discussion):
         db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')

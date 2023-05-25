@@ -47,6 +47,17 @@ class TextPreprocessor:
                 new_data[key] = self.preprocess_string(new_data[key])
         return new_data
 
+    def preprocess_forum_discussion(self, discussion):
+        new_data = {}
+        print(discussion)
+
+        for message_id, message_dict in discussion.items():
+            new_data[message_id] = {}
+            new_data[message_id]['author'] = message_dict['author']
+            new_data[message_id]['text'] = self.preprocess_string(message_dict['text'])
+
+        return new_data
+
     def concatenate_sections_grobid(self, preprocessed_output):
         sections_text = [text for key, text in preprocessed_output.items()]
         combined_text = ". ".join(sections_text)
