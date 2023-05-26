@@ -2,7 +2,7 @@ from flask import Flask, request, redirect, render_template, url_for, session
 import threading
 
 import sys
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
+sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\Cassidy\\application')
 
 from F_UserInterface.ApplicationManager.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
 
@@ -11,6 +11,11 @@ app.secret_key = 'your_secret_key_here'  # Change to your actual secret key
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    recommended_steps = {
+        'summarize': ['clean_data', 'split_sentences'],
+        'sentiment_analysis': ['clean_data', 'split_sentences', 'case_folding', 'tokenize', 'pos_tagging', 'filter_pos_tagged'],
+        # Add more mappings as necessary
+    }
     if request.method == 'POST':
         session['source_type'] = request.form.get('source_type')
         session['link'] = request.form.get('link')
@@ -25,7 +30,8 @@ def home():
 
         return redirect(url_for('loading'))
 
-    return render_template('home.html')
+    return render_template('home.html', recommended_steps=recommended_steps)
+
 
 @app.route('/loading', methods=['GET'])
 def loading():
