@@ -11,14 +11,26 @@
     <form action="/" method="post">
         <h1>Cassidy</h1>
             <br> Data source type: <br>
-            <select name="source_type">
+            <select name="source_type", id="source_type" onchange="updateInputFields()">
                 <option value="None">- - -</option>
                 <option value="Scientific article">Scientific article</option>
                 <option value="Online forum discussion">Online forum discussion</option>
             </select>
             <br>
-            Link: <br>
-            <input type="text" name="link"><br>
+            <div id="link_div">
+                Link: <br>
+                <input type="text" id="link" name="link"><br>
+            </div>
+            <div id="message_div">
+                Message Class: <br>
+                <input type="text" id="message_class" name="message_class"><br>
+                Message Text Class: <br>
+                <input type="text" id="message_text_class" name="message_text_class"><br>
+                Message Author Class: <br>
+                <input type="text" id="message_author_class" name="message_author_class"><br>
+                Pagination Class: <br>
+                <input type="text" id="pagination_class" name="pagination_class"><br>
+            </div>
             Functionality: <br>
             <select name="functionality">
                 <option value="None">- - -</option>
@@ -39,7 +51,8 @@
                     <div class="step" id="clean_data">
                         Clean data
                         <i class="info-icon">i</i>
-                        <div class="info-modal">Info about clean data step...</div>
+                        <div class="info-modal">Removes unnecessary data from the text, such as URLs, extra whitespaces,
+                        usernames et cetera</div>
                     </div>
                     <div class="step" id="split_sentences">
                         Split sentences
@@ -84,6 +97,21 @@
     </form>
 
     <script>
+        function updateInputFields() {
+            var sourceType = document.getElementById('source_type').value;
+            var linkDiv = document.querySelector('#link_div');
+            var messageDiv = document.querySelector('#message_div');
+            // Initially hide all divs
+            linkDiv.style.display = 'none';
+            messageDiv.style.display = 'none';
+            if(sourceType == 'Scientific article') {
+                linkDiv.style.display = 'block';
+            } else if(sourceType == 'Online forum discussion') {
+                linkDiv.style.display = 'block';
+                messageDiv.style.display = 'block';
+            }
+        }
+
         $(function() {
             $(".connectedSortable").sortable({
                 connectWith: ".connectedSortable"
