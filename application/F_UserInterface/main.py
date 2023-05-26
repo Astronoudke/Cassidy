@@ -13,7 +13,7 @@ app.secret_key = 'your_secret_key_here'  # Change to your actual secret key
 def home():
     recommended_steps = {
         'summarize': ['clean_data', 'split_sentences'],
-        'sentiment_analysis': ['clean_data', 'split_sentences', 'case_folding', 'tokenize', 'pos_tagging', 'filter_pos_tagged'],
+        'relation_extractor': ['clean_data', 'case_folding', 'split_sentences', 'tokenize', 'pos_tagging', 'filter_pos_tagged'],
         # Add more mappings as necessary
     }
     if request.method == 'POST':

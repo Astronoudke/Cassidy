@@ -115,29 +115,39 @@ class TextPreprocessor:
         return text.lower()
 
     def tokenize(self, text):
-        return word_tokenize(text)
-
-    def tokenize_sentences(self, sentences):
-        return [word_tokenize(sentence) for sentence in sentences]
+        if isinstance(text, list):
+            return [word_tokenize(sentence) for sentence in text]
+        else:
+            return word_tokenize(text)
 
     def join_tokens(self, tokens):
         return " ".join(tokens)
 
     def pos_tagging(self, words):
-        # If it's a list of words (strings)
-        if isinstance(words[0], str):
-            return pos_tag(words)
-        # If it's a list of lists
-        elif isinstance(words[0], list):
-            return [pos_tag(word_list) for word_list in words]
+        # If the list is not empty
+        if words:
+            # If it's a list of words (strings)
+            if isinstance(words[0], str):
+                return pos_tag(words)
+            # If it's a list of lists
+            elif isinstance(words[0], list):
+                return [pos_tag(word_list) for word_list in words]
+        # If the list is empty, return an empty list
+        else:
+            return []
 
     def filter_pos_tagged(self, pos_tagged_text, tags=['NN', 'NNS', 'NNP', 'NNPS']):
-        # If it's a list of (word, tag) tuples
-        if isinstance(pos_tagged_text[0], tuple):
-            return [word for word, tag in pos_tagged_text if tag in tags]
-        # If it's a list of lists
-        elif isinstance(pos_tagged_text[0], list):
-            return [[word for word, tag in word_list if tag in tags] for word_list in pos_tagged_text]
+        # If pos_tagged_text is not empty
+        if pos_tagged_text:
+            # If it's a list of (word, tag) tuples
+            if isinstance(pos_tagged_text[0], tuple):
+                return [word for word, tag in pos_tagged_text if tag in tags]
+            # If it's a list of lists
+            elif isinstance(pos_tagged_text[0], list):
+                return [[word for word, tag in word_list if tag in tags] for word_list in pos_tagged_text]
+        # If pos_tagged_text is empty, return an empty list
+        else:
+            return []
 
     def categorize_words(self, words):
         # implement your word categorization here

@@ -2,7 +2,13 @@ body {
     font-family: Arial, sans-serif;
 }
 
+/* Puts h1 in center of page */
+h1 {
+    text-align: center;
+}
+
 .step {
+    position: relative;
     margin: 5px;
     padding: 10px;
     border: 1px solid #ddd;
@@ -30,3 +36,23 @@ body {
     }
 }
 
+.info-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: blue;
+}
+
+.info-modal {
+    display: none;
+    position: absolute;
+    top: 70%;  /* adjust as needed to position below the info-icon */
+    right: 10px;
+    z-index: 1;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #888;
+    width: 300px;
+}
