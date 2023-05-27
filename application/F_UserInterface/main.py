@@ -2,7 +2,7 @@ from flask import Flask, request, redirect, render_template, url_for, session
 import threading
 
 import sys
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\Cassidy\\application')
+sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
 
 from F_UserInterface.ApplicationManager.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
 
@@ -12,6 +12,7 @@ app.secret_key = 'your_secret_key_here'  # Change to your actual secret key
 @app.route('/', methods=['GET', 'POST'])
 def home():
     recommended_steps = {
+        'sentiment_analysis': ['clean_data'],
         'summarize': ['clean_data', 'split_sentences'],
         'relation_extractor': ['clean_data', 'case_folding', 'split_sentences', 'tokenize', 'pos_tagging', 'filter_pos_tagged'],
         # Add more mappings as necessary
@@ -55,7 +56,22 @@ def loading():
 @app.route('/result')
 def result():
     result = session.get('result')
-    return render_template('result.html', result=result)
+    functionality = session.get('functionality')
+    print(functionality)
+
+    if functionality == 'sentiment_analysis':
+        avg_sentiment = sum(result.values()) / len(result)
+        print(sum(result.values()))
+        print(len(result))
+        print(avg_sentiment)
+        return render_template('result_sentiment.html', result=result, avg_sentiment=avg_sentiment)
+    elif functionality == 'summarize':
+        return render_template('result_summary.html', result=result)
+    elif functionality == 'relation_extractor':
+        return render_template('result_relation.html', result=result)
+    else:
+        return render_template('result.html', result=result)  # fallback
+
 
 if __name__ == '__main__':
     app.run(debug=True)

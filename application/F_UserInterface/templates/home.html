@@ -8,6 +8,9 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 <body>
+    <div id="loading-overlay">
+        <div id="loading-text">Loading<span id="loading-dots"></span></div>
+    </div>
     <form action="/" method="post">
         <h1>Cassidy</h1>
             <br> Data source type: <br>
@@ -112,6 +115,15 @@
             }
         }
 
+        function startLoadingDots() {
+            var count = 0;
+            setInterval(function() {
+                count++;
+                var dots = count % 4 === 0 ? '' : new Array((count % 4) + 1).join('.');
+                document.getElementById('loading-dots').innerHTML = dots;
+            }, 800);
+        }
+
         $(function() {
             $(".connectedSortable").sortable({
                 connectWith: ".connectedSortable"
@@ -145,6 +157,17 @@
 
         $(document).click(function() {
             $(".info-modal").hide();
+        });
+
+        $('form').on('submit', function() {
+            var selected_steps = $("#selected_steps").sortable("toArray");
+            $('#preprocessing_steps_order').val(selected_steps);
+
+            // display the loading overlay
+            $('#loading-overlay').show();
+
+            // start the loading dots animation
+            startLoadingDots();
         });
     </script>
 </body>

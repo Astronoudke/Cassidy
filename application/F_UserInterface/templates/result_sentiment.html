@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Add some styling to your slider */
+        .slider {
+            -webkit-appearance: none;
+            width: 25px;
+            height: 300px;
+            background: linear-gradient(to bottom, green, yellow, red);
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+            transform: rotate(270deg);
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 35px;
+            height: 15px;
+            background: #000;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Your average sentiment slider -->
+    <div style="text-align:center;">
+        <input type="range" min="-1" max="1" value="{{ avg_sentiment }}" class="slider" id="myRange" disabled>
+        <p>Average Sentiment: <span id="demo"></span></p>
+    </div>
+
+    <script>
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("demo");
+        output.innerHTML = slider.value;
+
+        slider.oninput = function() {
+          output.innerHTML = this.value;
+        }
+    </script>
+</body>
+</html>
