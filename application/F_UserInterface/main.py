@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, render_template, url_for, session
 import threading
 import os
 import time
+import json
 
 import sys
 sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
@@ -26,16 +27,19 @@ def home():
 
         if 'pdf_file' in request.files and session['source_type'] == 'Scientific article':
             pdf_file = request.files['pdf_file']
-            # Add a timestamp to the filename
-            filename = str(time.time()) + "_" + pdf_file.filename
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            pdf_file.save(file_path)
-            session['link'] = file_path  # The link now contains local file path
-            print("Via PDF " + session['link'])
-
+            if pdf_file.filename != '':  # check if file has been uploaded
+                print("True")
+                # Add a timestamp to the filename
+                filename = str(time.time()) + "_" + pdf_file.filename
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                pdf_file.save(file_path)
+                session['link'] = file_path  # The link now contains local file path
+            else:
+                print("False")
+                session['link'] = request.form.get('link')
         else:
+            print("False")
             session['link'] = request.form.get('link')
-            print("Via link: " + session['link'])
 
         session['preprocessing_steps'] = request.form.get('preprocessing_steps_order').split(",")
         session['functionality'] = request.form.get('functionality')
@@ -64,26 +68,31 @@ def loading():
         analyzer = ScientificLiteratureAnalyzer(session['link'])
 
     result = analyzer.analyze(functionality=functionality, preprocessing_steps=preprocessing_steps)
-    session['result'] = result
-    print(session['result'])
+    # Convert the result to JSON and save it to a file
+    result_filename = os.path.join(app.config['UPLOAD_FOLDER'], f"{time.time()}_result.json")
+    with open(result_filename, 'w') as f:
+        json.dump(result, f)
+
+    # Save the filename in the session instead of the result itself
+    session['result_filename'] = result_filename
 
     return redirect(url_for('result'))
 
 @app.route('/result')
 def result():
-    result = session.get('result')
-    functionality = session.get('functionality')
-    print(functionality)
+    result_filename = session.get('result_filename')
+    # Read the result from the file
+    with open(result_filename, 'r') as f:
+        result = json.load(f)
 
-    if os.path.exists(session['link']):
-        os.remove(session['link'])
-        print("File removed: " + session['link'])
+    functionality = session.get('functionality')
+
+    # Remove the result file
+    if os.path.exists(result_filename):
+        os.remove(result_filename)
 
     if functionality == 'sentiment_analysis':
         avg_sentiment = sum(result.values()) / len(result)
-        print(sum(result.values()))
-        print(len(result))
-        print(avg_sentiment)
         return render_template('result_sentiment.html', result=result, avg_sentiment=avg_sentiment)
     elif functionality == 'summarize':
         return render_template('result_summary.html', result=result)
