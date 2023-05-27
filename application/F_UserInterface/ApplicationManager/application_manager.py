@@ -42,7 +42,6 @@ class ScientificLiteratureAnalyzer:
 
             new_dict[header] = summary
 
-        print(new_dict)
 
         return new_dict
 
@@ -65,8 +64,6 @@ class ScientificLiteratureAnalyzer:
         relation_extractor = RelationExtractor(new_text)
         relations = relation_extractor.extract('co_occurrence')
 
-        print(relations)
-
         return relations
 
     def sentiment_analysis(self, preprocessing_steps=[]):
@@ -82,8 +79,6 @@ class ScientificLiteratureAnalyzer:
         for header, text in preprocessed_data.items():
             sa = SentimentAnalyzer(text)
             new_dict[header] = sa.analyze('textblob_analysis')
-
-        print(new_dict)
 
         return new_dict
 

@@ -11,10 +11,10 @@
     <div id="loading-overlay">
         <div id="loading-text">Loading<span id="loading-dots"></span></div>
     </div>
-    <form action="/" method="post">
+    <form action="/" method="post" enctype='multipart/form-data'>
         <h1>Cassidy</h1>
             <br> Data source type: <br>
-            <select name="source_type", id="source_type" onchange="updateInputFields()">
+            <select name="source_type" id="source_type" onchange="updateInputFields()">
                 <option value="None">- - -</option>
                 <option value="Scientific article">Scientific article</option>
                 <option value="Online forum discussion">Online forum discussion</option>
@@ -23,6 +23,10 @@
             <div id="link_div">
                 Link: <br>
                 <input type="text" id="link" name="link"><br>
+                <div id="file_upload_div">
+                    PDF file: <br>
+                    <input type="file" id="pdf_file" name="pdf_file" accept=".pdf"><br>
+                </div>
             </div>
             <div id="message_div">
                 Message Class: <br>
@@ -109,6 +113,24 @@
             messageDiv.style.display = 'none';
             if(sourceType == 'Scientific article') {
                 linkDiv.style.display = 'block';
+            } else if(sourceType == 'Online forum discussion') {
+                linkDiv.style.display = 'block';
+                messageDiv.style.display = 'block';
+            }
+        }
+
+        function updateInputFields() {
+            var sourceType = document.getElementById('source_type').value;
+            var linkDiv = document.querySelector('#link_div');
+            var fileUploadDiv = document.querySelector('#file_upload_div');
+            var messageDiv = document.querySelector('#message_div');
+            // Initially hide all divs
+            linkDiv.style.display = 'none';
+            fileUploadDiv.style.display = 'none';
+            messageDiv.style.display = 'none';
+            if(sourceType == 'Scientific article') {
+                linkDiv.style.display = 'block';
+                fileUploadDiv.style.display = 'block';
             } else if(sourceType == 'Online forum discussion') {
                 linkDiv.style.display = 'block';
                 messageDiv.style.display = 'block';

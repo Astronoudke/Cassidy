@@ -9,11 +9,9 @@
     <div class="accordion">
         {% for title, summary in result.items() %}
         <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-toggle="collapse">
-                    {{ title }}
-                </button>
-            </h2>
+            <h3 class="accordion-header">
+                {{ title }}
+            </h3>
             <div class="accordion-collapse collapse">
                 <div class="accordion-body">
                     {{ summary }}
