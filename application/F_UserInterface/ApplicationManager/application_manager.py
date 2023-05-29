@@ -31,6 +31,8 @@ class ScientificLiteratureAnalyzer:
         preprocessor = TextPreprocessor(summarization_steps)
         preprocessed_text = preprocessor.preprocess_grobid(text)
 
+        print(preprocessed_text)
+
         # Summarize data
         new_dict = {}
         for header, sentences in preprocessed_text.items():
@@ -44,6 +46,30 @@ class ScientificLiteratureAnalyzer:
 
 
         return new_dict
+
+    def summarize_all(self, preprocessing_steps=[]):
+        # Collect data
+        collector = ScientificLiteratureCollector(self.path)
+        text = collector.collect(self.format, self.source_type, self.method)
+
+        # Preprocess data
+        summarization_steps = preprocessing_steps
+        preprocessor = TextPreprocessor(summarization_steps)
+        preprocessed_text = preprocessor.preprocess_grobid(text)
+
+        # Consolidate all sentences in one list
+        all_sentences = []
+        for header, sentences in preprocessed_text.items():
+            all_sentences.extend(sentences)
+
+        # Summarize data
+        es = ExtractiveSummarizer(all_sentences)
+        summary = es.summarize('textrank', top_n=15, order_by_rank=False)
+
+        # filter out sentences less than four words long
+        summary = '. '.join(sentence for sentence in summary.split('. ') if len(sentence.split()) >= 4)
+
+        return summary
 
     def relation_extractor(self, preprocessing_steps=[]):
         # Collect data
