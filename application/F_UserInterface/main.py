@@ -21,7 +21,6 @@ def home():
     recommended_steps = {
         'sentiment_analysis': ['clean_data'],
         'summarize': ['clean_data', 'split_sentences'],
-        'summarize_all': ['clean_data', 'split_sentences'],
         'relation_extractor': ['clean_data', 'case_folding', 'split_sentences', 'tokenize', 'pos_tagging', 'filter_pos_tagged'],
         # Add more mappings as necessary
     }
@@ -107,9 +106,6 @@ def result():
         if session['source_type'] == 'Online forum discussion':
             return render_template('result_top_messages.html', result=result)
         return render_template('result_summary.html', result=result)
-    elif functionality == 'summarize_all':
-        print(result)
-        return render_template('result_summary_all.html', result=result)
     elif functionality == 'relation_extractor':
         return render_template('result_relation.html', result=result)
     else:
