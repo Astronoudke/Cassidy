@@ -5,7 +5,7 @@ from nltk.tokenize import sent_tokenize
 from rouge import Rouge
 from fuzzywuzzy import fuzz
 import sys
-sys.path.append('/application')
+sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
 
 from A_DataCollectors.ScientificLiteratureCollector.scientific_literature_collector import ScientificLiteratureCollector
 from C_DataProcessors.text_preprocessor import TextPreprocessor
@@ -24,8 +24,8 @@ def similar_sentences_count(summarizer_sentences, researcher_sentences, threshol
     return count
 
 # Fetch the PDF files and corresponding text files.
-papers_dir = '/application/F_Evaluate/Summarization/datasets/manual/papers'
-sentences_dir = '/application/F_Evaluate/Summarization/datasets/manual/sentences'
+papers_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/F_Evaluate/Summarization/datasets/manual/papers'
+sentences_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/F_Evaluate/Summarization/datasets/manual/sentences'
 file_names = [name[:-4] for name in os.listdir(papers_dir) if name.endswith('.pdf')]
 
 for file_name in file_names:
@@ -40,6 +40,7 @@ for file_name in file_names:
     summarization_steps = ['clean_data', 'split_sentences']
     preprocessor = TextPreprocessor(summarization_steps)
     preprocessed_text = preprocessor.preprocess_grobid(text)
+    print(preprocessed_text)
 
     # Consolidate all sentences in one list
     all_sentences = []
@@ -48,7 +49,7 @@ for file_name in file_names:
 
     # Summarize data
     es = ExtractiveSummarizer(all_sentences)
-    summary = es.summarize('textrank', top_n=40, order_by_rank=False)
+    summary = es.summarize('bertsum', top_n=10, order_by_rank=False)
 
     # filter out sentences less than four words long
     summary = '. '.join(sentence for sentence in summary.split('. ') if len(sentence.split()) >= 4)
