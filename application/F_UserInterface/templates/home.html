@@ -22,10 +22,11 @@
             <br>
             <div id="link_div">
                 Link: <br>
-                <input type="text" id="link" name="link"><br>
+                <input type="text" id="link" name="link" oninput="checkFileUpload()"><br>
                 <div id="file_upload_div">
                     PDF file: <br>
-                    <input type="file" id="pdf_file" name="pdf_file" accept=".pdf"><br>
+                    <input type="file" id="pdf_file" name="pdf_file" accept=".pdf" onchange="checkLinkInput()"><br>
+                    <button type="button" id="clear_file">Clear</button>
                 </div>
             </div>
             <div id="message_div">
@@ -107,21 +108,6 @@
         function updateInputFields() {
             var sourceType = document.getElementById('source_type').value;
             var linkDiv = document.querySelector('#link_div');
-            var messageDiv = document.querySelector('#message_div');
-            // Initially hide all divs
-            linkDiv.style.display = 'none';
-            messageDiv.style.display = 'none';
-            if(sourceType == 'Scientific article') {
-                linkDiv.style.display = 'block';
-            } else if(sourceType == 'Online forum discussion') {
-                linkDiv.style.display = 'block';
-                messageDiv.style.display = 'block';
-            }
-        }
-
-        function updateInputFields() {
-            var sourceType = document.getElementById('source_type').value;
-            var linkDiv = document.querySelector('#link_div');
             var fileUploadDiv = document.querySelector('#file_upload_div');
             var messageDiv = document.querySelector('#message_div');
             // Initially hide all divs
@@ -140,6 +126,29 @@
                 messageDiv.style.display = 'block';
             }
         }
+
+        // Call the function initially to set fields correctly
+        updateInputFields();
+
+        function checkFileUpload() {
+            var fileInput = document.getElementById('pdf_file');
+            if (document.getElementById('link').value != "" && fileInput.files.length > 0) {
+                alert("A PDF file has been uploaded already. Please remove the file if you want to insert a link. Make sure you have 'Online forum discussion' selected as a data source if you're entering a link.");
+                document.getElementById('link').value = "";  // Reset the input field
+            }
+        }
+
+        function checkLinkInput() {
+            var fileInput = document.getElementById('pdf_file');
+            if (document.getElementById('link').value != "" && fileInput.files.length > 0) {
+                alert("A link has been inserted already. Please remove the link if you want to upload a file.");
+                fileInput.value = "";  // Reset the file input field
+            }
+        }
+
+        document.getElementById('clear_file').addEventListener('click', function() {
+            document.getElementById('pdf_file').value = '';
+        });
 
         function startLoadingDots() {
             var count = 0;
