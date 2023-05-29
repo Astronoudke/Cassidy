@@ -108,6 +108,29 @@ class ForumAnalyzer:
         analysis = getattr(self, functionality)(preprocessing_steps)
         return analysis
 
+    def summarize(self, preprocessing_steps=[]):
+        # Preprocess data
+        summarization_steps = preprocessing_steps
+        preprocessor = TextPreprocessor(summarization_steps)
+        preprocessed_text = preprocessor.preprocess_forum_discussion(self.collected_messages)
+
+        # Summarize data
+        new_dict = {}
+        for header, messages in preprocessed_text.items():
+            print("Messages: ")
+            print(messages)
+            es = ExtractiveSummarizer(messages)
+            summary = es.summarize('relevance_scores', top_n=3, order_by_rank=False)
+
+            print(summary)
+
+            # filter out messages less than four words long
+            summary = '. '.join(message for message in summary if len(message.split()) >= 3)
+
+            new_dict[header] = summary
+
+        return new_dict
+
     def relation_extractor(self, preprocessing_steps=[]):
         # Preprocess data
         relation_steps = ['clean_data']
@@ -128,6 +151,9 @@ class ForumAnalyzer:
     def sentiment_analysis(self, preprocessing_steps=[]):
         summarization_preprocessor = TextPreprocessor(preprocessing_steps)
         preprocessed_data = summarization_preprocessor.preprocess_forum_discussion(self.collected_messages)
+
+        print("Preprocessed text: ")
+        print(preprocessed_data)
 
         new_dict = {}
         for header, text in preprocessed_data.items():

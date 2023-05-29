@@ -3,10 +3,13 @@ import threading
 import os
 import time
 import json
+from spacy.lang.en.stop_words import STOP_WORDS
+from nltk.tokenize import sent_tokenize
 
 import sys
 sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
 
+from D_Analyzers.Summarization.functions import RelevanceScores
 from F_UserInterface.ApplicationManager.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
 
 app = Flask(__name__)
@@ -28,17 +31,14 @@ def home():
         if 'pdf_file' in request.files and session['source_type'] == 'Scientific article':
             pdf_file = request.files['pdf_file']
             if pdf_file.filename != '':  # check if file has been uploaded
-                print("True")
                 # Add a timestamp to the filename
                 filename = str(time.time()) + "_" + pdf_file.filename
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 pdf_file.save(file_path)
                 session['link'] = file_path  # The link now contains local file path
             else:
-                print("False")
                 session['link'] = request.form.get('link')
         else:
-            print("False")
             session['link'] = request.form.get('link')
 
         session['preprocessing_steps'] = request.form.get('preprocessing_steps_order').split(",")
@@ -68,6 +68,13 @@ def loading():
         analyzer = ScientificLiteratureAnalyzer(session['link'])
 
     result = analyzer.analyze(functionality=functionality, preprocessing_steps=preprocessing_steps)
+
+    # If the functionality is "summarize" and the source type is "Online forum discussion", rank the messages
+    if functionality == 'summarize' and session['source_type'] == 'Online forum discussion':
+        relevance_scores = RelevanceScores()
+        top_messages = relevance_scores.select_top_messages(result, 3, STOP_WORDS)
+        result = top_messages  # Replace the result with the top messages
+
     # Convert the result to JSON and save it to a file
     result_filename = os.path.join(app.config['UPLOAD_FOLDER'], f"{time.time()}_result.json")
     with open(result_filename, 'w') as f:
@@ -77,6 +84,7 @@ def loading():
     session['result_filename'] = result_filename
 
     return redirect(url_for('result'))
+
 
 @app.route('/result')
 def result():
@@ -95,6 +103,8 @@ def result():
         avg_sentiment = sum(result.values()) / len(result)
         return render_template('result_sentiment.html', result=result, avg_sentiment=avg_sentiment)
     elif functionality == 'summarize':
+        if session['source_type'] == 'Online forum discussion':
+            return render_template('result_top_messages.html', result=result)
         return render_template('result_summary.html', result=result)
     elif functionality == 'relation_extractor':
         return render_template('result_relation.html', result=result)
