@@ -179,6 +179,7 @@
             </div>
 
             <input type="hidden" id="preprocessing_steps_order" name="preprocessing_steps_order">
+            <div id="error-message" style="color: red;"></div>
             <input type="submit" value="Submit">
     </form>
 
@@ -281,15 +282,31 @@
             $(".info-modal-input").hide();
         });
 
-        $('form').on('submit', function() {
-            var selected_steps = $("#selected_steps").sortable("toArray");
-            $('#preprocessing_steps_order').val(selected_steps);
+        $('form').on('submit', function(e) {
+            var sourceType = $('#source_type').val();
+            var functionality = $('select[name="functionality"]').val();
+            var linkValue = $('#link').val();
+            var pdfFileValue = $('#pdf_file').get(0).files.length;
 
-            // display the loading overlay
-            $('#loading-overlay').show();
+            if (sourceType === 'None') {
+                alert("A source type needs to be selected to conduct an analysis.");
+                e.preventDefault(); //prevent the form from submitting
+            } else if (functionality === 'None') {
+                alert("A functionality needs to be selected to conduct an analysis.");
+                e.preventDefault(); //prevent the form from submitting
+            } else if ((sourceType === 'Scientific article' || sourceType === 'Online forum discussion') && linkValue === '' && pdfFileValue === 0) {
+                alert("No source has been selected");
+                e.preventDefault(); //prevent the form from submitting
+            } else {
+                var selected_steps = $("#selected_steps").sortable("toArray");
+                $('#preprocessing_steps_order').val(selected_steps);
 
-            // start the loading dots animation
-            startLoadingDots();
+                // display the loading overlay
+                $('#loading-overlay').show();
+
+                // start the loading dots animation
+                startLoadingDots();
+            }
         });
     </script>
 </body>
