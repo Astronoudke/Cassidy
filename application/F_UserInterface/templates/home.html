@@ -13,7 +13,19 @@
     </div>
     <form action="/" method="post" enctype='multipart/form-data'>
         <h1>Cassidy</h1>
-            <br> Data source type: <br>
+            <br> Data source type:
+            <i class="info-icon-input">i
+                <div class="info-modal-input">Two data source types can be selected: scientific articles and
+                online forum discussions.
+                    <br>
+                    For scientific articles, either a link or PDF-file is inserted, containing
+                    the full-text article.
+                    <br>
+                    For online forum discussions, a link to the discussion is inserted. Furthermore, a few "classes"
+                    are inserted. More on that when that option is selected.
+                </div>
+            </i>
+            <br>
             <select name="source_type" id="source_type" onchange="updateInputFields()">
                 <option value="None">- - -</option>
                 <option value="Scientific article">Scientific article</option>
@@ -21,25 +33,91 @@
             </select>
             <br>
             <div id="link_div">
-                Link: <br>
+                Link:
+                <i class="info-icon-input">i
+                    <div class="info-modal-input">A direct link to the full-text article in PDF-format.</div>
+                </i>
+                <br>
                 <input type="text" id="link" name="link" oninput="checkFileUpload()"><br>
                 <div id="file_upload_div">
-                    PDF file: <br>
+                    PDF file:
+                    <i class="info-icon-input">i
+                        <div class="info-modal-input">A local PDF-file containing the full-text article.</div>
+                    </i><br>
                     <input type="file" id="pdf_file" name="pdf_file" accept=".pdf" onchange="checkLinkInput()"><br>
                     <button type="button" id="clear_file">Clear</button>
                 </div>
             </div>
             <div id="message_div">
                 Message Class: <br>
-                <input type="text" id="message_class" name="message_class"><br>
+                <input type="text" id="message_class" name="message_class">
+                <i class="info-icon-input">i
+                    <div class="info-modal-input">
+                        <p>To perform analysis on an online forum discussion, we will need to collect a bit of information
+                        on the web page itself.
+                        <br>
+                            By right-clicking on a message in the discussion and selecting "Inspect", you can see the HTML
+                            code of the message. In this code, you can find the "class" of the message. This is a unique
+                            identifier for the message, which we will use to collect all messages in the discussion.
+                            <br>
+                            Copy the class of the FULL message and paste it in the input field above.
+                        </p>
+                        <img src="{{ url_for('static', filename='images/message_class.jpg') }}" alt="Image description for message class">
+                    </div>
+                </i>
+                <br>
+
+                <!-- Message Text Class: -->
                 Message Text Class: <br>
-                <input type="text" id="message_text_class" name="message_text_class"><br>
+                <input type="text" id="message_text_class" name="message_text_class">
+                <i class="info-icon-input">i
+                    <div class="info-modal-input">
+                        <p>Next up is the text of the message. Hover over the inner text of a message, right-click on it
+                        and select "Inspect". Copy the class of the element containing the text of the message, and paste
+                        it in here.</p>
+                        <img src="{{ url_for('static', filename='images/message_text_class.jpg') }}" alt="Image description for message text class">
+                    </div>
+                </i>
+                <br>
+
+                <!-- Message Author Class: -->
                 Message Author Class: <br>
-                <input type="text" id="message_author_class" name="message_author_class"><br>
+                <input type="text" id="message_author_class" name="message_author_class">
+                <i class="info-icon-input">i
+                    <div class="info-modal-input">
+                        <p>Next up is the author of the message. Hover over the name of the author, select "Inspect",
+                         and copy the class of the element containing the author name. Paste it here.</p>
+                        <img src="{{ url_for('static', filename='images/message_author_class.jpg') }}" alt="Image description for message author class">
+                    </div>
+                </i>
+                <br>
+
+                <!-- Pagination Class: -->
                 Pagination Class: <br>
-                <input type="text" id="pagination_class" name="pagination_class"><br>
+                <input type="text" id="pagination_class" name="pagination_class">
+                <i class="info-icon-input">i
+                    <div class="info-modal-input">
+                        <p>Lastly is the pagination. Hover over the pagination (which is the element containing the different
+                        page numbers you can click on) and select "Inspect". Copy the class of the element containing
+                        the page numbers, and insert it here.</p>
+                        <img src="{{ url_for('static', filename='images/pagination.jpg') }}" alt="Image description for pagination class">
+                    </div>
+                </i>
+                <br>
             </div>
-            Functionality: <br>
+            Functionality:
+            <i class="info-icon-input">i
+                <div class="info-modal-input">Three functionalities can be executed:
+                <br>
+                - Sentiment analysis: calculates a "sentiment score" per section/message. The score is between -1 and 1,
+                where -1 is very negative, 0 is neutral and 1 is very positive.
+                <br>
+                - Extractive summarization: extracts the most important sentences from the text.
+                <br>
+                - Relation extraction: extracts meaningful relations between Nouns in the text.
+                </div>
+            </i>
+            <br>
             <select name="functionality">
                 <option value="None">- - -</option>
                 <option value="sentiment_analysis">Sentiment analysis</option>
@@ -192,6 +270,15 @@
 
         $(document).click(function() {
             $(".info-modal").hide();
+        });
+
+        $(".info-icon-input").click(function(e) {
+            e.stopPropagation();  // Prevent this click from triggering the document's click event
+            $(this).children(".info-modal-input").show();
+        });
+
+        $(document).click(function() {
+            $(".info-modal-input").hide();
         });
 
         $('form').on('submit', function() {

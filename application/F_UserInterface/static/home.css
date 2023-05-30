@@ -36,6 +36,27 @@ h1 {
     }
 }
 
+.info-icon-input {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black; /* if you want a dotted underline for icon */
+    cursor: pointer;
+    color: blue;
+}
+
+.info-modal-input {
+    display: none;
+    text-align: left;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    left: 105%; /* it will appear on the right side of the icon */
+    width: 900px; /* adjust the width as per your requirements */
+}
+
 .info-icon {
     position: absolute;
     top: 50%;
@@ -83,4 +104,10 @@ h1 {
     color: white;
     transform: translate(-50%,-50%);
     -ms-transform: translate(-50%,-50%);
+}
+
+.info-modal-input img {
+    max-width: 100%; /* to make sure images do not overflow the modal */
+    height: auto; /* to maintain aspect ratio */
+    margin-top: 10px; /* add space between the image and the text */
 }
