@@ -28,6 +28,7 @@ class TextPreprocessor:
 
     def preprocess_grobid(self, output):
         new_data = {"title": output['title']}
+
         heading_counts = {}
 
         for section in output['sections']:

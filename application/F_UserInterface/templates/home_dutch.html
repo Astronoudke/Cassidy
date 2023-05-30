@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voorverwerking</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='home.css') }}">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+    <div id="loading-overlay">
+        <div id="loading-text">Bezig met laden<span id="loading-dots"></span></div>
+    </div>
+    <form action="/home_dutch" method="post" enctype='multipart/form-data'>
+        <h1>Cassidy</h1>
+            <br> Datatype bron:
+            <i class="info-icon-input">i
+                <div class="info-modal-input">Er kunnen twee datatype bronnen worden geselecteerd: wetenschappelijke artikelen en
+                online forumdiscussies.
+                    <br>
+                    Voor wetenschappelijke artikelen wordt een link of PDF-bestand ingevoerd, met daarin het volledige artikel.
+                    <br>
+                    Voor online forumdiscussies wordt een link naar de discussie ingevoerd. Daarnaast worden enkele "klassen"
+                    ingevoerd. Meer daarover wanneer die optie is geselecteerd.
+                </div>
+            </i>
+            <br>
+            <select name="source_type" id="source_type" onchange="updateInputFields()">
+                <option value="None">- - -</option>
+                <option value="Scientific article">Wetenschappelijk artikel</option>
+                <option value="Online forum discussion">Online forumdiscussie</option>
+            </select>
+            <br>
+            <div id="link_div">
+                Link:
+                <i class="info-icon-input">i
+                    <div class="info-modal-input">Een directe link naar het volledige artikel in PDF-formaat.</div>
+                </i>
+                <br>
+                <input type="text" id="link" name="link" oninput="checkFileUpload()"><br>
+                <div id="file_upload_div">
+                    PDF-bestand:
+                    <i class="info-icon-input">i
+                        <div class="info-modal-input">Een lokaal PDF-bestand met daarin het volledige artikel.</div>
+                    </i><br>
+                    <input type="file" id="pdf_file" name="pdf_file" accept=".pdf" onchange="checkLinkInput()"><br>
+                    <button type="button" id="clear_file">Wis</button>
+                </div>
+            </div>
+            <div id="message_div">
+                Bericht klasse: <br>
+                <input type="text" id="message_class" name="message_class">
+                <i class="info-icon-input">i
+                    <div class="info-modal-input">
+                        <p>Om een analyse uit te voeren op een online forumdiscussie, moeten we wat informatie verzamelen
+                        over de webpagina zelf.
+                        <br>
+                            Door met de rechtermuisknop op een bericht in de discussie te klikken en "Inspecteren" te selecteren, kunt u de HTML-code
+                            van het bericht zien. In deze code vindt u de "klasse" van het bericht. Dit is een unieke
+                            identificator voor het bericht, die we zullen gebruiken om alle berichten in de discussie te verzamelen.
+                            <br>
+                            Kopieer de klasse van het VOLLEDIGE bericht en plak het in het invoerveld hierboven.
+                        </p>
+                        <img src="{{ url_for('static', filename='images/message_class.jpg') }}" alt="Beeldbeschrijving voor berichtklasse">
+                    </div>
+                </i>
+                <br>
+
+                <!-- Bericht Tekstklasse: -->
+                Bericht tekstklasse: <br>
+                <input type="text" id="message_text_class" name="message_text_class">
+                <i class="info-icon-input">i
+                    <div class="info-modal-input">
+                        <p>Daarna komt de tekst van het bericht. Beweeg over de binnenste tekst van een bericht, klik met de rechtermuisknop op het
+                        en selecteer "Inspecteren". Kopieer de klasse van het element dat de tekst van het bericht bevat, en plak
+                        het hier.</p>
+                        <img src="{{ url_for('static', filename='images/message_text_class.jpg') }}" alt="Beeldbeschrijving voor tekstklasse van bericht">
+                    </div>
+                </i>
+                <br>
+
+                <!-- Bericht Auteur Klasse: -->
+                Bericht auteur klasse: <br>
+                <input type="text" id="message_author_class" name="message_author_class">
+                <i class="info-icon-input">i
+                    <div class="info-modal-input">
+                        <p>Daarna komt de auteur van het bericht. Beweeg over de naam van de auteur, selecteer "Inspecteren",
+                         en kopieer de klasse van het element dat de auteursnaam bevat. Plak het hier.</p>
+                        <img src="{{ url_for('static', filename='images/message_author_class.jpg') }}" alt="Beeldbeschrijving voor auteurklasse van bericht">
+                    </div>
+                </i>
+                <br>
+
+                <!-- Paginatieklasse: -->
+                Paginatieklasse: <br>
+                <input type="text" id="pagination_class" name="pagination_class">
+                <i class="info-icon-input">i
+                    <div class="info-modal-input">
+                        <p>Ten slotte is er de paginatie. Beweeg over de paginatie (dat is het element met de verschillende
+                        paginanummers waarop u kunt klikken) en selecteer "Inspecteren". Kopieer de klasse van het element dat
+                        de paginanummers bevat, en voeg het hier in.</p>
+                        <img src="{{ url_for('static', filename='images/pagination.jpg') }}" alt="Beeldbeschrijving voor paginatieklasse">
+                    </div>
+                </i>
+                <br>
+            </div>
+            Functionaliteit:
+            <i class="info-icon-input">i
+                <div class="info-modal-input">Drie functionaliteiten kunnen worden uitgevoerd:
+                <br>
+                - Sentimentanalyse: berekent een "sentimentscore" per sectie/bericht. De score ligt tussen -1 en 1,
+                waarbij -1 zeer negatief is, 0 neutraal is en 1 zeer positief is.
+                <br>
+                - Extractieve samenvatting: haalt de belangrijkste zinnen uit de tekst.
+                <br>
+                - Relatie-extractie: haalt betekenisvolle relaties tussen zelfstandige naamwoorden uit de tekst.
+                </div>
+            </i>
+            <br>
+            <select name="functionality">
+                <option value="None">- - -</option>
+                <option value="sentiment_analysis">Sentimentanalyse</option>
+                <option value="summarize">Extractieve samenvatting</option>
+                <option value="relation_extractor">Relatie-extractie</option>
+                <!-- Voeg indien nodig meer opties toe -->
+            </select>
+            <br>
+            <!-- Overige invoervelden -->
+
+            <h2>Sleep en zet uw voorverwerkingsstappen neer:</h2>
+
+            <div id="sortable-container">
+
+                <div id="preprocessing_steps" class="connectedSortable">
+                    <!-- Neem hier al uw stappen op -->
+                    <div class="step" id="clean_data">
+                        Gegevens opschonen
+                        <i class="info-icon">i</i>
+                        <div class="info-modal">Verwijdert overbodige gegevens uit de tekst, zoals URL's, extra spaties,
+                        gebruikersnamen enzovoort</div>
+                    </div>
+                    <div class="step" id="split_sentences">
+                        Zinnen splitsen
+                        <i class="info-icon">i</i>
+                        <div class="info-modal">Splitst de zinnen, zodat ze afzonderlijk kunnen worden geanalyseerd.</div>
+                    </div>
+                    <div class="step" id="case_folding">
+                        Hoofdlettergebruik standaardiseren
+                        <i class="info-icon">i</i>
+                        <div class="info-modal">Zet alle woorden die hoofdletters bevatten om in kleine letters. Dit zorgt ervoor dat woorden
+                        niet als verschillend worden gezien als een met hoofdletters is en de andere met kleine letters
+                            (bijv. Woord tegenover woord).</div>
+                    </div>
+                    <div class="step" id="tokenize">
+                        Tokenisatie van woorden
+                        <i class="info-icon">i</i>
+                        <div class="info-modal">Splitst de tekst in de afzonderlijke woorden en leestekens. Dit maakt het mogelijk om
+                        de woorden apart te analyseren.</div>
+                    </div>
+                    <div class="step" id="pos_tagging">
+                        Woordsoortmarkering
+                        <i class="info-icon">i</i>
+                        <div class="info-modal">Bepaalt het woordsoort van een woord (bijv. zelfstandig naamwoord of werkwoord). Dit maakt het mogelijk om
+                        woorden uit te filteren die van een irrelevant woordsoort zijn.</div>
+                    </div>
+                    <div class="step" id="filter_pos_tagged">
+                        Filteren op alleen zelfstandige naamwoorden
+                        <i class="info-icon">i</i>
+                        <div class="info-modal">Filtert alle woorden uit die geen zelfstandige naamwoorden zijn. Vereist POS tagging net ervoor.</div>
+                    </div>
+                    <!-- Voeg meer stappen toe -->
+
+                </div>
+                <div id="selected_steps" class="connectedSortable">
+                        <!-- The steps dragged here will be sent to the server -->
+                </div>
+            </div>
+
+            <!-- Ingediende stappen -->
+            <input type="hidden" id="preprocessing_steps_order" name="preprocessing_steps_order" value="">
+            <button type="submit">Verwerken</button>
+        </form>
+
+        <div class="language-switcher">
+            <a href="/"><img src="{{ url_for('static', filename='images/uk_flag.jpg') }}" alt="English"></a>
+            <a href="/home_dutch"><img src="{{ url_for('static', filename='images/nl_flag.png') }}" alt="Dutch"></a>
+        </div>
+        <script>
+            function updateInputFields() {
+                var sourceType = document.getElementById('source_type').value;
+                var linkDiv = document.querySelector('#link_div');
+                var fileUploadDiv = document.querySelector('#file_upload_div');
+                var messageDiv = document.querySelector('#message_div');
+                // Initially hide all divs
+                linkDiv.style.display = 'none';
+                fileUploadDiv.style.display = 'none';
+                messageDiv.style.display = 'none';
+                if (sourceType == 'None') {
+                    linkDiv.style.display = 'none';
+                    fileUploadDiv.style.display = 'none';
+                    messageDiv.style.display = 'none';
+                } else if(sourceType == 'Scientific article') {
+                    linkDiv.style.display = 'block';
+                    fileUploadDiv.style.display = 'block';
+                } else if(sourceType == 'Online forum discussion') {
+                    linkDiv.style.display = 'block';
+                    messageDiv.style.display = 'block';
+                }
+            }
+
+            // Call the function initially to set fields correctly
+            updateInputFields();
+
+            function checkFileUpload() {
+                var fileInput = document.getElementById('pdf_file');
+                if (document.getElementById('link').value != "" && fileInput.files.length > 0) {
+                    alert("A PDF file has been uploaded already. Please remove the file if you want to insert a link.");
+                    document.getElementById('link').value = "";  // Reset the input field
+                }
+            }
+
+            function checkLinkInput() {
+                var fileInput = document.getElementById('pdf_file');
+                if (document.getElementById('link').value != "" && fileInput.files.length > 0) {
+                    alert("A link has been inserted already. Please remove the link if you want to upload a file.");
+                    fileInput.value = "";  // Reset the file input field
+                }
+            }
+
+            document.getElementById('clear_file').addEventListener('click', function() {
+                document.getElementById('pdf_file').value = '';
+            });
+
+            function startLoadingDots() {
+                var count = 0;
+                setInterval(function() {
+                    count++;
+                    var dots = count % 4 === 0 ? '' : new Array((count % 4) + 1).join('.');
+                    document.getElementById('loading-dots').innerHTML = dots;
+                }, 800);
+            }
+
+            $(function() {
+                $(".connectedSortable").sortable({
+                    connectWith: ".connectedSortable"
+                }).disableSelection();
+
+                $('form').on('submit', function() {
+                    var selected_steps = $("#selected_steps").sortable("toArray");
+                    $('#preprocessing_steps_order').val(selected_steps);
+                });
+            });
+
+            var recommended_steps = {{ recommended_steps | tojson }};  // Load the data from Python
+
+            $('select[name="functionality"]').change(function() {
+                var functionality = $(this).val();
+                var steps = recommended_steps[functionality];
+
+                // First, move all steps back to the source div
+                $("#selected_steps").children().appendTo("#preprocessing_steps");
+
+                // Then, move the recommended steps to the target div
+                for (var i = 0; i < steps.length; i++) {
+                    $("#" + steps[i]).appendTo("#selected_steps");
+                }
+            });
+
+            $(".info-icon").click(function(e) {
+                e.stopPropagation();  // Prevent this click from triggering the document's click event
+                $(this).siblings(".info-modal").show();
+            });
+
+            $(document).click(function() {
+                $(".info-modal").hide();
+            });
+
+            $(".info-icon-input").click(function(e) {
+                e.stopPropagation();  // Prevent this click from triggering the document's click event
+                $(this).children(".info-modal-input").show();
+            });
+
+            $(document).click(function() {
+                $(".info-modal-input").hide();
+            });
+
+            $('form').on('submit', function(e) {
+                var sourceType = $('#source_type').val();
+                var functionality = $('select[name="functionality"]').val();
+                var linkValue = $('#link').val();
+                var pdfFileValue = $('#pdf_file').get(0).files.length;
+
+                if (sourceType === 'None') {
+                    alert("A source type needs to be selected to conduct an analysis.");
+                    e.preventDefault(); //prevent the form from submitting
+                } else if (functionality === 'None') {
+                    alert("A functionality needs to be selected to conduct an analysis.");
+                    e.preventDefault(); //prevent the form from submitting
+                } else if ((sourceType === 'Scientific article' || sourceType === 'Online forum discussion') && linkValue === '' && pdfFileValue === 0) {
+                    alert("No source has been selected");
+                    e.preventDefault(); //prevent the form from submitting
+                } else {
+                    var selected_steps = $("#selected_steps").sortable("toArray");
+                    $('#preprocessing_steps_order').val(selected_steps);
+
+                    // display the loading overlay
+                    $('#loading-overlay').show();
+
+                    // start the loading dots animation
+                    startLoadingDots();
+                }
+            });
+        </script>
+</body>
+</html>

@@ -70,6 +70,44 @@ def home():
 
     return render_template('home.html', recommended_steps=recommended_steps)
 
+@app.route('/home_dutch', methods=['GET', 'POST'])
+def home_dutch():
+    recommended_steps = {
+        'sentiment_analysis': ['clean_data'],
+        'summarize': ['clean_data', 'split_sentences'],
+        'relation_extractor': ['clean_data', 'case_folding', 'split_sentences', 'tokenize', 'pos_tagging', 'filter_pos_tagged'],
+        # Add more mappings as necessary
+    }
+
+    if request.method == 'POST':
+        session['source_type'] = request.form.get('source_type')
+
+        if 'pdf_file' in request.files and session['source_type'] == 'Scientific article':
+            pdf_file = request.files['pdf_file']
+            if pdf_file.filename != '':  # check if file has been uploaded
+                # Add a timestamp to the filename
+                filename = str(time.time()) + "_" + pdf_file.filename
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                pdf_file.save(file_path)
+                session['link'] = file_path  # The link now contains local file path
+            else:
+                session['link'] = request.form.get('link')
+        else:
+            session['link'] = request.form.get('link')
+
+        session['preprocessing_steps'] = request.form.get('preprocessing_steps_order').split(",")
+        session['functionality'] = request.form.get('functionality')
+
+        if session['source_type'] == 'Online forum discussion':
+            session['message_class'] = request.form.get('message_class')
+            session['pagination_class'] = request.form.get('pagination_class')
+            session['message_text_class'] = request.form.get('message_text_class')
+            session['message_author_class'] = request.form.get('message_author_class')
+
+        return redirect(url_for('loading'))
+
+    return render_template('home_dutch.html', recommended_steps=recommended_steps)
+
 
 @app.route('/loading', methods=['GET'])
 def loading():

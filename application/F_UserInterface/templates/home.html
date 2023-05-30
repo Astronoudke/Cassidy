@@ -183,6 +183,11 @@
             <input type="submit" value="Submit">
     </form>
 
+    <div class="language-switcher">
+        <a href="/"><img src="{{ url_for('static', filename='images/uk_flag.jpg') }}" alt="English"></a>
+        <a href="/home_dutch"><img src="{{ url_for('static', filename='images/nl_flag.png') }}" alt="Dutch"></a>
+    </div>
+
     <script>
         function updateInputFields() {
             var sourceType = document.getElementById('source_type').value;
