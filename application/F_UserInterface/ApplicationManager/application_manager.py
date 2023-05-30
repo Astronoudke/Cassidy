@@ -40,8 +40,10 @@ class ScientificLiteratureAnalyzer:
         es = ExtractiveSummarizer(all_sentences)
         summary = es.summarize('bertsum', top_n=15, order_by_rank=False)
 
+        print(summary)
+
         # filter out sentences less than four words long
-        summary = '. '.join(sentence for sentence in summary.split('. ') if len(sentence.split()) >= 4)
+        summary = [sentence for sentence in summary.split('. ') if len(sentence.split()) >= 4]
 
         return summary
 
@@ -62,7 +64,7 @@ class ScientificLiteratureAnalyzer:
 
         # Analyze the data
         relation_extractor = RelationExtractor(new_text)
-        relations = relation_extractor.extract('co_occurrence')
+        relations = relation_extractor.extract('tfidf_relations')
 
         return relations
 

@@ -133,7 +133,7 @@
         function checkFileUpload() {
             var fileInput = document.getElementById('pdf_file');
             if (document.getElementById('link').value != "" && fileInput.files.length > 0) {
-                alert("A PDF file has been uploaded already. Please remove the file if you want to insert a link. Make sure you have 'Online forum discussion' selected as a data source if you're entering a link.");
+                alert("A PDF file has been uploaded already. Please remove the file if you want to insert a link.");
                 document.getElementById('link').value = "";  // Reset the input field
             }
         }

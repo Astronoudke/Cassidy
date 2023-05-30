@@ -1,6 +1,8 @@
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import defaultdict
 from itertools import combinations
-from sklearn.feature_extraction.text import CountVectorizer
+from nltk import word_tokenize, pos_tag
 
 
 class RelationExtractor:
@@ -29,3 +31,26 @@ class RelationExtractor:
         # Return the top n pairs without their counts
         top_pairs = [pair for pair, count in sorted_co_occurrences[:top_n]]
         return top_pairs
+
+    def tfidf_relations(self, sentences, top_n):
+        # Flatten the list of sentences to feed to the vectorizer
+        all_nouns = [noun for sublist in sentences for noun in sublist]
+
+        # Vectorize the text using TF-IDF with bigrams
+        tfidf_vectorizer = TfidfVectorizer(ngram_range=(2, 2))
+        tfidf_matrix = tfidf_vectorizer.fit_transform(all_nouns)
+
+        # Create a dictionary to hold the scores for each bigram
+        tfidf_scores = defaultdict(int)
+
+        # Go through each bigram and its score
+        for bigram, index in tfidf_vectorizer.vocabulary_.items():
+            score = tfidf_matrix.sum(axis=0).tolist()[0][index]
+            tfidf_scores[bigram] = score
+
+        # Sort the scores in descending order
+        sorted_scores = sorted(tfidf_scores.items(), key=lambda x: x[1], reverse=True)
+
+        # Return the top n bigrams with their scores
+        top_bigrams = sorted_scores[:top_n]
+        return top_bigrams

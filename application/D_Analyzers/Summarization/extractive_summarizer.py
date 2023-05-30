@@ -113,17 +113,12 @@ class ExtractiveSummarizer:
 
     def relevance_scores(self, sentences, top_n=3, order_by_rank=True):
         # Set standard weights
-        print("sentences: ")
-        print(sentences)
         position_weight = 0.1  # adjust to your needs
         length_weight = 0.2  # adjust to your needs
         term_weight = 0.7  # adjust to your needs
 
         # Calculate TextRank scores
         textrank_scores = self.relevance.calculate_textrank_scores(sentences)
-
-        print("textrank_scores: ")
-        print(textrank_scores)
 
         # Calculate other scores
         term_relevance_scores = self.relevance.calculate_term_relevance_scores(sentences)

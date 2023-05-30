@@ -101,9 +101,6 @@ class TextPreprocessor:
         # Remove extra whitespace
         text = text.strip()
         text = " ".join(text.split())
-        # Convert numbers to words
-        p = inflect.engine()
-        text = re.sub(r'\d+', lambda x: p.number_to_words(x.group()), text)
         # Expand contractions
         text = contractions.fix(text)
         return text
@@ -159,7 +156,10 @@ class TextPreprocessor:
         return [word for word in words if word not in stop_words]
 
     def lemmatize(self, words):
-        return [lemmatizer.lemmatize(word) for word in words]
+        if isinstance(words[0], list):
+            return [[lemmatizer.lemmatize(word) for word in word_list] for word_list in words]
+        else:
+            return [lemmatizer.lemmatize(word) for word in words]
 
     def join_words(self, words):
         return " ".join(words)

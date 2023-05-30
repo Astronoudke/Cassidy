@@ -18,9 +18,11 @@
                 Top 15 Sentences Summary
             </div>
             <div class="card-body">
-                <p class="card-text">
-                    {{ result }}
-                </p>
+                <ul class="card-text">
+                    {% for sentence in result %}
+                        <li>{{ sentence }}</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>
