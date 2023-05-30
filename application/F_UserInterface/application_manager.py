@@ -1,5 +1,5 @@
 import sys
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
+sys.path.append('/application')
 
 from A_DataCollectors.ScientificLiteratureCollector.scientific_literature_collector import ScientificLiteratureCollector
 from A_DataCollectors.ForumCollector.forum_collector import ForumCollector
@@ -122,7 +122,7 @@ class ForumAnalyzer:
             print("Messages: ")
             print(messages)
             es = ExtractiveSummarizer(messages)
-            summary = es.summarize('relevance_scores', top_n=3, order_by_rank=False)
+            summary = es.summarize('relevance_scores', top_n=5, order_by_rank=False)
 
             print(summary)
 

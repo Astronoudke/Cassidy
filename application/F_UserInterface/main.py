@@ -10,11 +10,27 @@ import sys
 sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
 
 from D_Analyzers.Summarization.functions import RelevanceScores
-from F_UserInterface.ApplicationManager.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
+from F_UserInterface.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'uploaded_files')
 app.secret_key = 'your_secret_key_here'  # Change to your actual secret key
+
+
+@app.template_filter('calculate_color')
+def calculate_color(score):
+    def lerp(c1, c2, t):
+        return int(c1 + t * (c2 - c1))
+
+    if score < 0:
+        # Interpolate between red (255, 0, 0) and white (255, 255, 255)
+        t = (score + 1)  # Adjust score to [0, 1]
+        return f'rgb({lerp(255, 255, t)}, {lerp(0, 255, t)}, {lerp(0, 255, t)})'
+    else:
+        # Interpolate between white (255, 255, 255) and green (0, 255, 0)
+        t = score  # Adjust score to [0, 1]
+        return f'rgb({lerp(255, 0, t)}, {lerp(255, 255, t)}, {lerp(255, 0, t)})'
+
 
 @app.route('/', methods=['GET', 'POST'])
 def home():

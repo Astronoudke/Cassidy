@@ -17,10 +17,11 @@ class SentimentAnalyzer:
         blob = TextBlob(text)
 
         # Return the sentiment polarity
-        return blob.sentiment.polarity
+        return round(blob.sentiment.polarity, 2)
 
     def stanza_analysis(self, text):
         doc = self.nlp(text)
 
         # Calculate and return the average sentiment polarity of the sentences in the text
-        return sum([sentence.sentiment for sentence in doc.sentences]) / len(doc.sentences)
+        avg_sentiment = sum([sentence.sentiment for sentence in doc.sentences]) / len(doc.sentences)
+        return round(avg_sentiment, 2)

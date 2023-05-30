@@ -1,2 +1,26 @@
-<h1>Result</h1>
-<p>{{ result }}</p>
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='result_sentiment.css') }}">
+</head>
+<body>
+
+<h2>Sentiment Analysis Results</h2>
+
+<table>
+  <tr>
+    <th>Section</th>
+    <th>Sentiment Score</th>
+  </tr>
+  {% for section, score in result.items() %}
+  <tr>
+    <td>{{ section }}</td>
+    <td class="sentiment-cell" style="background-color: {{ score | calculate_color }};">
+      {{ score }}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+</body>
+</html>
