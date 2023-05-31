@@ -112,6 +112,8 @@ h1 {
     margin-top: 10px; /* add space between the image and the text */
 }
 
+/* Language switcher at lower center */
+
 .language-switcher {
     position: fixed; /* or absolute, depending on your needs */
     bottom: 0;
@@ -129,4 +131,40 @@ h1 {
     width: 30px;
     height: 20px;
     margin: 0 5px;
+}
+
+
+/* Logo at lower left corner */
+.logo-container {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-size: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-family: Arial, sans-serif;
+}
+
+.line {
+    display: flex;
+}
+
+.pink-text {
+    color: #e40454;
+}
+
+.cursor {
+    width: 2px;
+    height: 24px;
+    background-color: #FF69B4;
+    margin-left: 5px;
+    margin-right: 5px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
 }

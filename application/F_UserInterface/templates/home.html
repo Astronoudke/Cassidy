@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='home.css') }}">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
 </head>
 <body>
     <div id="loading-overlay">
@@ -188,6 +189,17 @@
         <a href="/home_dutch"><img src="{{ url_for('static', filename='images/nl_flag.png') }}" alt="Dutch"></a>
     </div>
 
+    <div class="logo-container" id="logo-animation">
+        <div class="line">
+            <span class="pink-text">HAN_</span>
+            <span class="black-text" id="university"></span>
+        </div>
+        <div class="line">
+            <span class="black-text" id="applied-sciences"></span>
+            <div class="cursor"></div>
+        </div>
+    </div>
+
     <script>
         function updateInputFields() {
             var sourceType = document.getElementById('source_type').value;
@@ -286,6 +298,37 @@
         $(document).click(function() {
             $(".info-modal-input").hide();
         });
+
+        // Logo animation
+
+        const text = 'UNIVERSITY';
+        const text2 = 'OF APPLIED SCIENCES';
+
+        const universityElement = document.querySelector('#university');
+        const appliedSciencesElement = document.querySelector('#applied-sciences');
+
+        let index = 0;
+        let index2 = 0;
+
+        function typeText() {
+            if (index < text.length) {
+                universityElement.textContent += text[index];
+                index++;
+                setTimeout(typeText, 100); // Adjust this to change the speed of the typing
+            } else {
+                typeText2();
+            }
+        }
+
+        function typeText2() {
+            if (index2 < text2.length) {
+                appliedSciencesElement.textContent += text2[index2];
+                index2++;
+                setTimeout(typeText2, 100); // Adjust this to change the speed of the typing
+            }
+        }
+
+        typeText();
 
         $('form').on('submit', function(e) {
             var sourceType = $('#source_type').val();
