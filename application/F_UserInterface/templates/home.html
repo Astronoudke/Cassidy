@@ -129,7 +129,8 @@
             <br>
             <!-- Other input fields -->
 
-            <h2>Drag and drop your preprocessing steps:</h2>
+            <h3>Preprocessing</h3>
+            <p>For now, the editing of preprocessing is disabled, as the code is currently in a PoC version and too unstable to run different sequences of preprocessing.</p>
 
             <div id="sortable-container">
 
@@ -257,8 +258,11 @@
 
         $(function() {
             $(".connectedSortable").sortable({
-                connectWith: ".connectedSortable"
-            }).disableSelection();
+                connectWith: ".connectedSortable",
+                // Disable dragging of steps
+                cancel: ':not(:input,button,a,textarea)'
+            });
+            // .disableSelection();
 
             $('form').on('submit', function() {
                 var selected_steps = $("#selected_steps").sortable("toArray");

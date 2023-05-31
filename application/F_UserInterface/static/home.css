@@ -9,11 +9,11 @@ h1 {
 
 .step {
     position: relative;
-    margin: 5px;
-    padding: 10px;
+    margin: 3px;  /* was 5px */
+    padding: 5px;  /* was 10px */
     border: 1px solid #ddd;
     background-color: #f9f9f9;
-    cursor: move;
+    font-size: 0.8em;  /* new, adjust as needed */
 }
 
 #sortable-container {
@@ -22,11 +22,12 @@ h1 {
 
 #preprocessing_steps,
 #selected_steps {
-    flex: 1; /* This makes the divs take up an equal amount of space */
-    min-height: 1px; /* This is necessary for flex items to have a height. You can change it as needed */
-    border: 1px solid black; /* Just for visualization */
+    flex: 1;
+    min-height: 1px;
+    border: 1px solid #ddd;  /* was black */
     padding: 10px;
     margin: 10px;
+    background-color: #f0f0f0;  /* new, adjust as needed */
 }
 
 

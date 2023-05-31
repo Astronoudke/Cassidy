@@ -253,8 +253,11 @@
 
             $(function() {
                 $(".connectedSortable").sortable({
-                    connectWith: ".connectedSortable"
-                }).disableSelection();
+                    connectWith: ".connectedSortable",
+                    // Disable dragging of steps
+                    cancel: ':not(:input,button,a,textarea)'
+                });
+                // .disableSelection();
 
                 $('form').on('submit', function() {
                     var selected_steps = $("#selected_steps").sortable("toArray");
