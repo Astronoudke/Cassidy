@@ -52,5 +52,5 @@ class RelationExtractor:
         sorted_scores = sorted(tfidf_scores.items(), key=lambda x: x[1], reverse=True)
 
         # Return the top n bigrams with their scores
-        top_bigrams = sorted_scores[:top_n]
+        top_bigrams = [(tuple(bigram.split(' ')), score) for bigram, score in sorted_scores[:top_n]]
         return top_bigrams

@@ -13,12 +13,13 @@
 <body>
     <div class="container mt-5">
         <h1>Relation Results</h1>
+        <p>These results represent the top relations in the given text based on TF-IDF scoring. Each relation consists of two related terms. The relations are listed in no particular order.</p>
         {% for pair in result %}
             <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Pair Number: {{ loop.index }}</h5>
-                    <p class="card-text">First item: {{ pair[0] }}</p>
-                    <p class="card-text">Second item: {{ pair[1] }}</p>
+                    <p class="card-text">First item: {{ pair[0][0] }}</p>
+                    <p class="card-text">Second item: {{ pair[0][1] }}</p>
                 </div>
             </div>
         {% endfor %}

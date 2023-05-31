@@ -66,6 +66,8 @@ class ScientificLiteratureAnalyzer:
         relation_extractor = RelationExtractor(new_text)
         relations = relation_extractor.extract('tfidf_relations')
 
+        print(relations)
+
         return relations
 
     def sentiment_analysis(self, preprocessing_steps=[]):
