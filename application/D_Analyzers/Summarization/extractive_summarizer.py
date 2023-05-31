@@ -21,7 +21,7 @@ class ExtractiveSummarizer:
         Returns the first three sentences of the text.
         :return:
         """
-        summary = " ".join(sentence.rstrip('.') for sentence in sentences[:min(top_n, len(sentences))])
+        summary = ". ".join(sentence.rstrip('.') for sentence in sentences[:min(top_n, len(sentences))])
         return summary + '.'
 
     def textrank(self, sentences, top_n=3, order_by_rank=True):
@@ -81,12 +81,9 @@ class ExtractiveSummarizer:
         min_value = np.min(position_weights)
         max_value = np.max(position_weights)
         position_weights = (position_weights - min_value) / (max_value - min_value)
-        print("position_weights: ")
-        print(position_weights)
 
         # Convert the scores dictionary to a numpy array
         scores_array = np.array([scores[i] for i in range(len(sentences))])
-        print(scores_array)
 
         # Normalize the scores_array and position_weights
         scores_array = (scores_array - scores_array.min()) / (scores_array.max() - scores_array.min())

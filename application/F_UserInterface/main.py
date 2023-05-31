@@ -59,6 +59,12 @@ def home():
 
         session['preprocessing_steps'] = request.form.get('preprocessing_steps_order').split(",")
         session['functionality'] = request.form.get('functionality')
+        if session['functionality'] == 'summarize':
+            session['model'] = request.form.get('summary_model')
+        elif session['functionality'] == 'relation_extractor':
+            session['model'] = request.form.get('relation_model')
+        elif session['functionality'] == 'sentiment_analysis':
+            session['model'] = request.form.get('sentiment_model')
 
         if session['source_type'] == 'Online forum discussion':
             session['message_class'] = request.form.get('message_class')
@@ -121,7 +127,7 @@ def loading():
     else:
         analyzer = ScientificLiteratureAnalyzer(session['link'])
 
-    result = analyzer.analyze(functionality=functionality, preprocessing_steps=preprocessing_steps)
+    result = analyzer.analyze(functionality=functionality, model=session['model'], preprocessing_steps=preprocessing_steps)
 
     # If the functionality is "summarize" and the source type is "Online forum discussion", rank the messages
     if functionality == 'summarize' and session['source_type'] == 'Online forum discussion':

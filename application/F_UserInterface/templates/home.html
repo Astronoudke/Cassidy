@@ -119,14 +119,68 @@
                 </div>
             </i>
             <br>
-            <select name="functionality">
+            <select id="functionality" name="functionality" onchange="updateModels()">
                 <option value="None">- - -</option>
                 <option value="sentiment_analysis">Sentiment analysis</option>
                 <option value="summarize">Extractive summarization</option>
                 <option value="relation_extractor">Relation extraction</option>
                 <!-- Add more options as needed -->
             </select>
-            <br>
+
+            <div id="sentiment_models" class="model-select" style="display: none;">
+                <p>Model:</p>
+                <select name="sentiment_model" onchange="updateModelInfo()">
+                    <option value="textblob_analysis">TextBlob Analysis</option>
+                    <!-- Add more options as needed -->
+                </select>
+            </div>
+
+            <div id="sentiment_model_info" class="model-info" style="display: none;">
+                <p id="sentiment_model_description"></p>
+                <div class="rating">
+                    <p>Accuracy: <span id="sentiment_model_accuracy"></span>/5</p>
+                    <p>Speed: <span id="sentiment_model_speed"></span>/5</p>
+                    <p>Usefulness: <span id="sentiment_model_usefulness"></span>/5</p>
+                </div>
+            </div>
+
+            <div id="summary_models" class="model-select" style="display: none;">
+                <p>Model:</p>
+                <select name="summary_model" onchange="updateModelInfo()">
+                    <option value="lead_3" title="Lead3: Summarizes by selecting the first three sentences.">Lead3</option>
+                    <option value="position_textrank">Positional TextRank</option>
+                    <option value="bertsum">BertSum</option>
+                    <option value="relevance_scores">Relevance Scores (for Discussions)</option>
+                    <!-- Add more options as needed -->
+                </select>
+            </div>
+
+            <div id="summary_model_info" class="model-info" style="display: none;">
+                <p id="summary_model_description"></p>
+                <div class="rating">
+                    <p>Accuracy: <span id="summary_model_accuracy"></span>/5</p>
+                    <p>Speed: <span id="summary_model_speed"></span>/5</p>
+                    <p>Usefulness: <span id="summary_model_usefulness"></span>/5</p>
+                </div>
+            </div>
+
+            <div id="relation_models" class="model-select" style="display: none;">
+                <p>Model:</p>
+                <select name="relation_model" onchange="updateModelInfo()">
+                    <option value="co_occurrence">Co-occurrences</option>
+                    <option value="tfidf_relations">TF-IDF Relations</option>
+                    <!-- Add more options as needed -->
+                </select>
+            </div>
+
+            <div id="relation_model_info" class="model-info" style="display: none;">
+                <p id="relation_model_description"></p>
+                <div class="rating">
+                    <p>Accuracy: <span id="relation_model_accuracy"></span>/5</p>
+                    <p>Speed: <span id="relation_model_speed"></span>/5</p>
+                    <p>Usefulness: <span id="relation_model_usefulness"></span>/5</p>
+                </div>
+            </div>
             <!-- Other input fields -->
 
             <h3>Preprocessing</h3>
@@ -185,10 +239,10 @@
             <input type="submit" value="Submit">
     </form>
 
-    <div class="language-switcher">
+    <!-- <div class="language-switcher">
         <a href="/"><img src="{{ url_for('static', filename='images/uk_flag.jpg') }}" alt="English"></a>
         <a href="/home_dutch"><img src="{{ url_for('static', filename='images/nl_flag.png') }}" alt="Dutch"></a>
-    </div>
+    </div> -->
 
     <div class="logo-container" id="logo-animation">
         <div class="line">
@@ -202,6 +256,135 @@
     </div>
 
     <script>
+        function updateModels() {
+            // Get the selected functionality
+            const functionality = document.getElementById('functionality').value;
+
+            // Hide all model selects and infos
+            const modelSelects = document.getElementsByClassName('model-select');
+            const modelInfos = document.getElementsByClassName('model-info');
+            for (let i = 0; i < modelSelects.length; i++) {
+                modelSelects[i].style.display = 'none';
+                modelInfos[i].style.display = 'none';
+            }
+
+            // Show the correct model select based on the selected functionality
+            if (functionality === 'sentiment_analysis') {
+                document.getElementById('sentiment_models').style.display = 'block';
+            } else if (functionality === 'summarize') {
+                document.getElementById('summary_models').style.display = 'block';
+            } else if (functionality === 'relation_extractor') {
+                document.getElementById('relation_models').style.display = 'block';
+            }
+
+            updateModelInfo(); // Update model info after changing model select visibility
+        }
+
+        function updateModelInfo() {
+            const functionality = document.getElementById('functionality').value;
+            let model;
+            let description;
+            let accuracy;
+            let speed;
+            let usefulness;
+
+            switch(functionality) {
+                case 'sentiment_analysis':
+                    model = document.querySelector('[name=sentiment_model]').value;
+                    switch(model) {
+                        case 'textblob_analysis':
+                            description = 'TextBlob Analysis is part of a so-called NLP (Natural Language Processing)-library.' +
+                                ' A library is a collection of code already written by someone else, in this case to analyze' +
+                                ' text. TextBlob is a library that is able to analyze text and determine the sentiment' +
+                                ' (positive or negative) of a text.';
+                            accuracy = '3';
+                            speed = '3';
+                            usefulness = '3';
+                            break;
+                        // add more cases as needed
+                    }
+                    document.getElementById('sentiment_model_description').innerText = description;
+                    document.getElementById('sentiment_model_accuracy').innerText = accuracy;
+                    document.getElementById('sentiment_model_speed').innerText = speed;
+                    document.getElementById('sentiment_model_usefulness').innerText = usefulness;
+                    document.getElementById('sentiment_model_info').style.display = 'block'; // Show model info after populating
+                    break;
+                case 'summarize':
+                    model = document.querySelector('[name=summary_model]').value;
+                    switch(model) {
+                        case 'lead_3':
+                            description = 'Lead3 selects the first three sentences of a text as a summary, assuming that' +
+                                ' the first sentences contain the most important information. This leads to no necessary' +
+                                ' analysis, but it significantly diminishes its accuracy when seeking to summarize a' +
+                                ' full text.';
+                            accuracy = '2';
+                            speed = '5';
+                            usefulness = '1';
+                            break;
+                        case 'position_textrank':
+                            description = 'Position TextRank is a TextRank-based model. TextRank is a model that uses' +
+                                ' the graph-based ranking algorithm PageRank to determine the importance of a sentence' +
+                                ' in a text. Position TextRank is a TextRank-based model that also takes into account' +
+                                ' the position of a sentence in a text. This model is somewhat accurate and somewhat fast.';
+                            accuracy = '3';
+                            speed = '3';
+                            usefulness = '3';
+                            break;
+                        case 'bertsum':
+                            description = 'BertSum is a Transformers-based model that uses the BERT encoder to generate' +
+                                ' embeddings of the input text. These embeddings are then used by the Transformer' +
+                                ' decoder to generate a summary. This model is very accurate, but it is also very' +
+                                ' slow. It is also not very useful for short texts, as it is trained on long texts.';
+                            accuracy = '4';
+                            speed = '1';
+                            usefulness = '5';
+                            break;
+                        case 'relevance_scores':
+                            description = 'Relevance Scores is a model that selects the most relevant forum messages' +
+                                ' out of a discussion. This model makes use of TextRank.';
+                            accuracy = '3';
+                            speed = '3';
+                            usefulness = '3';
+                            break;
+                        // add more cases as needed
+                    }
+                    document.getElementById('summary_model_description').innerText = description;
+                    document.getElementById('summary_model_accuracy').innerText = accuracy;
+                    document.getElementById('summary_model_speed').innerText = speed;
+                    document.getElementById('summary_model_usefulness').innerText = usefulness;
+                    document.getElementById('summary_model_info').style.display = 'block'; // Show model info after populating
+                    break;
+                case 'relation_extractor':
+                    model = document.querySelector('[name=relation_model]').value;
+                    switch(model) {
+                        case 'co_occurrence':
+                            description = 'Co-occurrence is an objective manner of determining the strongest relations, ' +
+                                'by counting the number of times two entities occur in the same sentence. This model '
+                                + 'is very fast, but it is also not very accurate.';
+                            accuracy = '5';
+                            speed = '4';
+                            usefulness = '1';
+                            break;
+                        case 'tfidf_relations':
+                            description = 'TF-IDF (Term Frequency-Inverse Document Frequency) analyzes the words that' +
+                                ' appear in a text, and then determines its relevance to a document based on how many ' +
+                                'times it appears in other documents. By using this method, we can determine the ' +
+                                'relevance of a word to a document, and thus the relevance of two entities to each ' +
+                                'other.';
+                            accuracy = '4';
+                            speed = '3';
+                            usefulness = '2';
+                            break;
+                        // add more cases as needed
+                    }
+                    document.getElementById('relation_model_description').innerText = description;
+                    document.getElementById('relation_model_accuracy').innerText = accuracy;
+                    document.getElementById('relation_model_speed').innerText = speed;
+                    document.getElementById('relation_model_usefulness').innerText = usefulness;
+                    document.getElementById('relation_model_info').style.display = 'block'; // Show model info after populating
+                    break;
+            }
+        }
         function updateInputFields() {
             var sourceType = document.getElementById('source_type').value;
             var linkDiv = document.querySelector('#link_div');

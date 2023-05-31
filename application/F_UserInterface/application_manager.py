@@ -17,11 +17,11 @@ class ScientificLiteratureAnalyzer:
         self.source_type = 'url' if path.startswith('http') else 'local'
         self.method = 'scipy'
 
-    def analyze(self, functionality, preprocessing_steps=[]):
-        analysis = getattr(self, functionality)(preprocessing_steps)
+    def analyze(self, functionality, model='textrank', preprocessing_steps=[]):
+        analysis = getattr(self, functionality)(model, preprocessing_steps)
         return analysis
 
-    def summarize(self, preprocessing_steps=[]):
+    def summarize(self, model, preprocessing_steps=[]):
         # Collect data
         collector = ScientificLiteratureCollector(self.path)
         text = collector.collect(self.format, self.source_type, self.method)
@@ -38,16 +38,14 @@ class ScientificLiteratureAnalyzer:
 
         # Summarize data
         es = ExtractiveSummarizer(all_sentences)
-        summary = es.summarize('bertsum', top_n=15, order_by_rank=False)
-
-        print(summary)
+        summary = es.summarize(model, top_n=15, order_by_rank=False)
 
         # filter out sentences less than four words long
         summary = [sentence for sentence in summary.split('. ') if len(sentence.split()) >= 4]
 
         return summary
 
-    def relation_extractor(self, preprocessing_steps=[]):
+    def relation_extractor(self, model, preprocessing_steps=[]):
         # Collect data
         collector = ScientificLiteratureCollector(self.path)
         text = collector.collect(self.format, self.source_type, self.method)
@@ -64,13 +62,11 @@ class ScientificLiteratureAnalyzer:
 
         # Analyze the data
         relation_extractor = RelationExtractor(new_text)
-        relations = relation_extractor.extract('tfidf_relations')
-
-        print(relations)
+        relations = relation_extractor.extract(model)
 
         return relations
 
-    def sentiment_analysis(self, preprocessing_steps=[]):
+    def sentiment_analysis(self, model, preprocessing_steps=[]):
         # Collect data
         collector = ScientificLiteratureCollector(self.path)
         text = collector.collect(self.format, self.source_type, self.method)
@@ -82,7 +78,7 @@ class ScientificLiteratureAnalyzer:
         new_dict = {}
         for header, text in preprocessed_data.items():
             sa = SentimentAnalyzer(text)
-            new_dict[header] = sa.analyze('textblob_analysis')
+            new_dict[header] = sa.analyze(model)
 
         return new_dict
 
@@ -108,11 +104,11 @@ class ForumAnalyzer:
             return_messages=True
         )
 
-    def analyze(self, functionality, preprocessing_steps=[]):
-        analysis = getattr(self, functionality)(preprocessing_steps)
+    def analyze(self, functionality, model, preprocessing_steps=[]):
+        analysis = getattr(self, functionality)(model, preprocessing_steps)
         return analysis
 
-    def summarize(self, preprocessing_steps=[]):
+    def summarize(self, model, preprocessing_steps=[]):
         # Preprocess data
         summarization_steps = preprocessing_steps
         preprocessor = TextPreprocessor(summarization_steps)
@@ -121,12 +117,8 @@ class ForumAnalyzer:
         # Summarize data
         new_dict = {}
         for header, messages in preprocessed_text.items():
-            print("Messages: ")
-            print(messages)
             es = ExtractiveSummarizer(messages)
-            summary = es.summarize('relevance_scores', top_n=5, order_by_rank=False)
-
-            print(summary)
+            summary = es.summarize(model, top_n=5, order_by_rank=False)
 
             # filter out messages less than four words long
             summary = '. '.join(message for message in summary if len(message.split()) >= 3)
@@ -135,7 +127,7 @@ class ForumAnalyzer:
 
         return new_dict
 
-    def relation_extractor(self, preprocessing_steps=[]):
+    def relation_extractor(self, model, preprocessing_steps=[]):
         # Preprocess data
         relation_steps = ['clean_data']
         preprocessor = TextPreprocessor(relation_steps)
@@ -148,20 +140,17 @@ class ForumAnalyzer:
 
         # Analyze the data
         relation_extractor = RelationExtractor(new_text)
-        relations = relation_extractor.extract('co_occurrence')
+        relations = relation_extractor.extract(model)
 
         return relations
 
-    def sentiment_analysis(self, preprocessing_steps=[]):
+    def sentiment_analysis(self, model, preprocessing_steps=[]):
         summarization_preprocessor = TextPreprocessor(preprocessing_steps)
         preprocessed_data = summarization_preprocessor.preprocess_forum_discussion(self.collected_messages)
-
-        print("Preprocessed text: ")
-        print(preprocessed_data)
 
         new_dict = {}
         for header, text in preprocessed_data.items():
             sa = SentimentAnalyzer(text)
-            new_dict[header] = sa.analyze('textblob_analysis')
+            new_dict[text] = sa.analyze(model)
 
         return new_dict
