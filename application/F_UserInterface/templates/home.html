@@ -328,7 +328,7 @@
                             description = 'Position TextRank is a TextRank-based model. TextRank is a model that uses' +
                                 ' the graph-based ranking algorithm PageRank to determine the importance of a sentence' +
                                 ' in a text. Position TextRank is a TextRank-based model that also takes into account' +
-                                ' the position of a sentence in a text. This model is somewhat accurate and somewhat fast.';
+                                ' the position of a sentence in a text. This model is moderately accurate fast.';
                             accuracy = '3';
                             speed = '3';
                             usefulness = '3';
@@ -389,25 +389,43 @@
             }
         }
         function updateInputFields() {
-            var sourceType = document.getElementById('source_type').value;
-            var linkDiv = document.querySelector('#link_div');
-            var fileUploadDiv = document.querySelector('#file_upload_div');
-            var messageDiv = document.querySelector('#message_div');
-            // Initially hide all divs
-            linkDiv.style.display = 'none';
-            fileUploadDiv.style.display = 'none';
-            messageDiv.style.display = 'none';
-            if (sourceType == 'None') {
+                var sourceType = document.getElementById('source_type').value;
+                var linkDiv = document.querySelector('#link_div');
+                var fileUploadDiv = document.querySelector('#file_upload_div');
+                var messageDiv = document.querySelector('#message_div');
+                var summaryModelDropdown = document.getElementsByName('summary_model')[0];
+
+                // Initially hide all divs
                 linkDiv.style.display = 'none';
                 fileUploadDiv.style.display = 'none';
                 messageDiv.style.display = 'none';
-            } else if(sourceType == 'Scientific article') {
-                linkDiv.style.display = 'block';
-                fileUploadDiv.style.display = 'block';
-            } else if(sourceType == 'Online forum discussion') {
-                linkDiv.style.display = 'block';
-                messageDiv.style.display = 'block';
-            }
+                summaryModelDropdown.innerHTML = "";  // Clear all existing options in the model dropdown
+
+                if (sourceType == 'None') {
+                    linkDiv.style.display = 'none';
+                    fileUploadDiv.style.display = 'none';
+                    messageDiv.style.display = 'none';
+                } else if(sourceType == 'Scientific article') {
+                    linkDiv.style.display = 'block';
+                    fileUploadDiv.style.display = 'block';
+
+                    // Add the appropriate model options
+                    var option1 = new Option("Lead3", "lead_3");
+                    var option2 = new Option("Positional TextRank", "position_textrank");
+                    var option3 = new Option("BertSum", "bertsum");
+                    summaryModelDropdown.add(option1);
+                    summaryModelDropdown.add(option2);
+                    summaryModelDropdown.add(option3);
+                } else if(sourceType == 'Online forum discussion') {
+                    linkDiv.style.display = 'block';
+                    messageDiv.style.display = 'block';
+
+                    // Add the appropriate model options
+                    var option4 = new Option("Relevance Scores (for Discussions)", "relevance_scores");
+                    summaryModelDropdown.add(option4);
+                }
+
+                updateModelInfo();  // Assuming this updates the model information
         }
 
         // Call the function initially to set fields correctly

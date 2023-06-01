@@ -20,6 +20,7 @@ lemmatizer = WordNetLemmatizer()
 class TextPreprocessor:
     def __init__(self, steps):
         self.steps = steps
+        nltk.download('punkt')
 
     def preprocess_string(self, text):
         for step in self.steps:
@@ -63,35 +64,6 @@ class TextPreprocessor:
         combined_text = ". ".join(sections_text)
         return combined_text
 
-    def extract_main_body(self, text):
-        # Define start and end markers
-        start_markers = ["abstract", "Abstract", "ABSTRACT"]
-        end_markers = ["acknowledgements", "Acknowledgements", "ACKNOWLEDGEMENTS", "references", "References",
-                       "REFERENCES"]
-
-        # Find the start of the main body
-        start_idx = len(text)
-        for marker in start_markers:
-            idx = text.find(marker)
-            if idx != -1 and idx < start_idx:
-                start_idx = idx
-
-        # Find the end of the main body
-        end_idx = len(text)
-        for marker in end_markers:
-            idx = text.find(marker)
-            if idx != -1 and idx < end_idx:
-                end_idx = idx
-
-        # Extract the main body
-        if start_idx < end_idx:
-            text = text[start_idx:end_idx]
-        else:
-            # If no valid start and end markers were found, return the original text
-            text = text
-
-        return text
-
     def clean_data(self, text):
         # Remove URLs
         text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
@@ -104,10 +76,12 @@ class TextPreprocessor:
         text = " ".join(text.split())
         # Expand contractions
         text = contractions.fix(text)
+
         return text
 
     def split_sentences(self, text):
-        return sent_tokenize(text)
+        tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+        return tokenizer.tokenize(text)
 
     def case_folding(self, text):
         return text.lower()

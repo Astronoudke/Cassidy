@@ -7,7 +7,7 @@ from spacy.lang.en.stop_words import STOP_WORDS
 from nltk.tokenize import sent_tokenize
 
 import sys
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
+sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\Cassidy\\application')
 
 from D_Analyzers.Summarization.functions import RelevanceScores
 from F_UserInterface.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer

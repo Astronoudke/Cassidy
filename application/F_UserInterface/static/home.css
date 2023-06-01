@@ -175,10 +175,8 @@ h1 {
 
 
 .model-info {
-    background-color: #e1e1e1; /* Faint red background */
-    border: #0e0e0e solid 1px;
-    border-radius: 15px; /* Rounded corners */
-    border-color: #1a1a1a;
+    background-color: #f0f0f0; /* Faint red background */
+    border: #dddddd solid 1px;
     padding: 15px; /* Some padding */
     margin-top: 20px; /* Some margin at the top */
     width: 550px;
@@ -187,6 +185,7 @@ h1 {
 }
 
 .model-info p {
+    font-size: 14px;
     margin-top: 0;
     margin-bottom: 0.5rem;
     height: 75%; /* Description takes up 75% of parent height */
@@ -196,4 +195,13 @@ h1 {
     display: flex; /* Display ratings side by side */
     justify-content: space-between; /* Space them */
     height: 25%; /* Ratings take up 25% of parent height */
+}
+
+.model-step {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    /* Add other styles as necessary */
 }
