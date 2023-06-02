@@ -557,6 +557,9 @@
                 var selected_steps = $("#selected_steps").sortable("toArray");
                 $('#preprocessing_steps_order').val(selected_steps);
 
+                // Store the selected steps in localStorage
+                localStorage.setItem('selectedSteps', JSON.stringify(selected_steps));
+
                 // display the loading overlay
                 $('#loading-overlay').show();
 
@@ -564,6 +567,21 @@
                 startLoadingDots();
             }
         });
+
+        window.onload = function() {
+            updateInputFields();
+            updateModels();
+            updateModelInfo();
+
+            // Restore the state of the selected steps
+            var selectedSteps = JSON.parse(localStorage.getItem('selectedSteps')) || [];
+            for (var i = 0; i < selectedSteps.length; i++) {
+                var step = document.getElementById(selectedSteps[i]);
+                if (step) {
+                    document.getElementById('selected_steps').appendChild(step);
+                }
+            }
+        }
     </script>
 </body>
 </html>
