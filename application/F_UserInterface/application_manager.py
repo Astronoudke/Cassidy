@@ -1,5 +1,5 @@
 import sys
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\Cassidy\\application')
+sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
 
 from A_DataCollectors.ScientificLiteratureCollector.scientific_literature_collector import ScientificLiteratureCollector
 from A_DataCollectors.ForumCollector.forum_collector import ForumCollector
