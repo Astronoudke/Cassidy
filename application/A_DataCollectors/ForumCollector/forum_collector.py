@@ -129,7 +129,6 @@ class ForumCollector(abc.ABC):
 
     def return_message_info_from_scraped(self, message, text_class: str, author_class: str, discussion_link: str = None):
         message_text = extract_text_by_class(message, text_class)
-
         message_author = extract_text_by_class(message, author_class)
 
         return {

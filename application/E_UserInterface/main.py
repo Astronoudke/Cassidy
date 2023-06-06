@@ -10,7 +10,7 @@ import sys
 sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\Cassidy\\application')
 
 from D_Analyzers.Summarization.functions import RelevanceScores
-from F_UserInterface.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
+from E_UserInterface.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'uploaded_files')

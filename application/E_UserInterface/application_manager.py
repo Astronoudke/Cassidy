@@ -74,6 +74,7 @@ class ScientificLiteratureAnalyzer:
         # Preprocess data
         sentiment_preprocessor = TextPreprocessor(preprocessing_steps)
         preprocessed_data = sentiment_preprocessor.preprocess_grobid(text)
+        print(preprocessed_data)
 
         new_dict = {}
         for header, text in preprocessed_data.items():
@@ -147,6 +148,8 @@ class ForumAnalyzer:
     def sentiment_analysis(self, model, preprocessing_steps=[]):
         summarization_preprocessor = TextPreprocessor(preprocessing_steps)
         preprocessed_data = summarization_preprocessor.preprocess_forum_discussion(self.collected_messages)
+
+        print(preprocessed_data)
 
         new_dict = {}
         for header, text in preprocessed_data.items():
