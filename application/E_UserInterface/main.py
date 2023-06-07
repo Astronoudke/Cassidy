@@ -58,6 +58,7 @@ def home():
             session['link'] = request.form.get('link')
 
         session['preprocessing_steps'] = request.form.get('preprocessing_steps_order').split(",")
+        print(session['preprocessing_steps'])
         session['functionality'] = request.form.get('functionality')
         if session['functionality'] == 'summarize':
             session['model'] = request.form.get('summary_model')

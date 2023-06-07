@@ -137,10 +137,15 @@ class TextPreprocessor:
         return [word for word in words if not nlp.vocab[word].is_stop]
 
     def lemmatize(self, words):
-        if isinstance(words[0], list):
-            return [[token.lemma_ for token in nlp(" ".join(word_list))] for word_list in words]
+        print("words")
+        print(words)
+        if len(words) == 0:
+            return []
+        if isinstance(words, list):
+            if isinstance(words[0], list):
+                return [[token.lemma_ for token in nlp(" ".join(word_list))] for word_list in words]
+            else:
+                return [token.lemma_ for token in nlp(" ".join(words))]
         else:
             return [token.lemma_ for token in nlp(words)]
 
-    def join_words(self, words):
-        return " ".join(words)
