@@ -1,13 +1,15 @@
 import sys
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from A_DataCollectors.ScientificLiteratureCollector.scientific_literature_collector import ScientificLiteratureCollector
 from A_DataCollectors.ForumCollector.forum_collector import ForumCollector
 from A_DataCollectors.ForumCollector.forum_application import ForumApplication
-from C_DataProcessors.text_preprocessor import TextPreprocessor
-from D_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
-from D_Analyzers.Relation_Extraction.relation_extractor import RelationExtractor
-from D_Analyzers.Sentiment_Analysis.sentiment_analyzer import SentimentAnalyzer
+from B_DataProcessors.text_preprocessor import TextPreprocessor
+from C_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
+from C_Analyzers.Relation_Extraction.relation_extractor import RelationExtractor
+from C_Analyzers.Sentiment_Analysis.sentiment_analyzer import SentimentAnalyzer
 
 
 class ScientificLiteratureAnalyzer:
@@ -74,6 +76,7 @@ class ScientificLiteratureAnalyzer:
         # Preprocess data
         sentiment_preprocessor = TextPreprocessor(preprocessing_steps)
         preprocessed_data = sentiment_preprocessor.preprocess_grobid(text)
+        print(preprocessed_data)
 
         new_dict = {}
         for header, text in preprocessed_data.items():
@@ -147,6 +150,8 @@ class ForumAnalyzer:
     def sentiment_analysis(self, model, preprocessing_steps=[]):
         summarization_preprocessor = TextPreprocessor(preprocessing_steps)
         preprocessed_data = summarization_preprocessor.preprocess_forum_discussion(self.collected_messages)
+
+        print(preprocessed_data)
 
         new_dict = {}
         for header, text in preprocessed_data.items():

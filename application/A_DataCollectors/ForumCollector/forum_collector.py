@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
-from B_Database.my_sql import DatabaseManager
 
 
 class ForumCollector(abc.ABC):
@@ -129,7 +128,6 @@ class ForumCollector(abc.ABC):
 
     def return_message_info_from_scraped(self, message, text_class: str, author_class: str, discussion_link: str = None):
         message_text = extract_text_by_class(message, text_class)
-
         message_author = extract_text_by_class(message, author_class)
 
         return {
@@ -144,23 +142,3 @@ class ForumCollector(abc.ABC):
     def store_message_in_dict(self, message, user_id):
         message_id = f"{message['author']}_{user_id}"
         return {message_id: message["text"]}
-
-    def store_discussion_in_database(self, discussion):
-        db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
-        db.connect()
-        db.add_discussion(
-            discussion["name"],
-            discussion["link"],
-            discussion["forum_id"]
-        )
-        db.close()
-
-    def store_message_in_database(self, message, user_id: int):
-        db = DatabaseManager(user='root', password='', host='localhost', database_name='cassidy')
-        db.connect()
-        db.add_message(
-            message["text"],
-            user_id,
-            message["discussion_id"]
-        )
-        db.close()

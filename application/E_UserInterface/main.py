@@ -7,10 +7,12 @@ from spacy.lang.en.stop_words import STOP_WORDS
 from nltk.tokenize import sent_tokenize
 
 import sys
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
+from pathlib import Path
 
-from D_Analyzers.Summarization.functions import RelevanceScores
-from F_UserInterface.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from C_Analyzers.Summarization.functions import RelevanceScores
+from E_UserInterface.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'uploaded_files')
@@ -58,6 +60,7 @@ def home():
             session['link'] = request.form.get('link')
 
         session['preprocessing_steps'] = request.form.get('preprocessing_steps_order').split(",")
+        print(session['preprocessing_steps'])
         session['functionality'] = request.form.get('functionality')
         if session['functionality'] == 'summarize':
             session['model'] = request.form.get('summary_model')

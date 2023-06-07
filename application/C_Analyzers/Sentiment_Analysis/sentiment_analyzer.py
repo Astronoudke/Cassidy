@@ -1,6 +1,5 @@
 import spacy
 from textblob import TextBlob
-import stanza
 from nltk.sentiment import SentimentIntensityAnalyzer
 
 import nltk

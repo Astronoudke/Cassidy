@@ -3,9 +3,16 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk import pos_tag
+
+import spacy
 import re
 import contractions
 import inflect
+import inflect
+import en_core_web_sm
+
+# Load the spaCy model
+nlp = en_core_web_sm.load()
 
 # If you have not downloaded these nltk packages, you will need to do so.
 nltk.download('punkt')
@@ -80,17 +87,17 @@ class TextPreprocessor:
         return text
 
     def split_sentences(self, text):
-        tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
-        return tokenizer.tokenize(text)
+        doc = nlp(text)
+        return [sent.text for sent in doc.sents]
 
     def case_folding(self, text):
         return text.lower()
 
     def tokenize(self, text):
         if isinstance(text, list):
-            return [word_tokenize(sentence) for sentence in text]
+            return [[token.text for token in nlp(sentence)] for sentence in text]
         else:
-            return word_tokenize(text)
+            return [token.text for token in nlp(text)]
 
     def join_tokens(self, tokens):
         return " ".join(tokens)
@@ -100,10 +107,10 @@ class TextPreprocessor:
         if words:
             # If it's a list of words (strings)
             if isinstance(words[0], str):
-                return pos_tag(words)
+                return [(token.text, token.tag_) for token in nlp(words)]
             # If it's a list of lists
             elif isinstance(words[0], list):
-                return [pos_tag(word_list) for word_list in words]
+                return [[(token.text, token.tag_) for token in nlp(" ".join(word_list))] for word_list in words]
         # If the list is empty, return an empty list
         else:
             return []
@@ -122,19 +129,23 @@ class TextPreprocessor:
             return []
 
     def categorize_words(self, words):
-        # implement your word categorization here
+        # implement word categorization here
         categorized_words = words
         return categorized_words
 
     def remove_stop_words(self, words):
-        stop_words = set(stopwords.words('english'))
-        return [word for word in words if word not in stop_words]
+        return [word for word in words if not nlp.vocab[word].is_stop]
 
     def lemmatize(self, words):
-        if isinstance(words[0], list):
-            return [[lemmatizer.lemmatize(word) for word in word_list] for word_list in words]
+        print("words")
+        print(words)
+        if len(words) == 0:
+            return []
+        if isinstance(words, list):
+            if isinstance(words[0], list):
+                return [[token.lemma_ for token in nlp(" ".join(word_list))] for word_list in words]
+            else:
+                return [token.lemma_ for token in nlp(" ".join(words))]
         else:
-            return [lemmatizer.lemmatize(word) for word in words]
+            return [token.lemma_ for token in nlp(words)]
 
-    def join_words(self, words):
-        return " ".join(words)

@@ -226,6 +226,23 @@
                         <i class="info-icon">i</i>
                         <div class="info-modal">Filters out all words that are not Nouns. Requires POS tagging right before.</div>
                     </div>
+                    <div class="step" id="remove_stop_words">
+                        Stop word removal
+                        <i class="info-icon">i</i>
+                        <div class="info-modal">Removes stop words from the text. Stop words are words that are very common and
+                        therefore do not add much meaning to the text (f.e. 'the' or 'and').</div>
+                    </div>
+                    <div class="step" id="lemmatize">
+                        Lemmatization
+                        <i class="info-icon">i</i>
+                        <div class="info-modal">Reduces words to their lemma (f.e. 'is' to 'be'). This makes sure that words that
+                        are different but have the same meaning are seen as the same word.</div>
+                    </div>
+                    <div class="step" id="join_tokens">
+                        Join tokens
+                        <i class="info-icon">i</i>
+                        <div class="info-modal">Joins words that are tokenized together, so they can be analyzed as a text.</div>
+                    </div>
                     <!-- Add more steps -->
                 </div>
 
@@ -305,6 +322,7 @@
                             speed = '3';
                             usefulness = '3';
                             break;
+
                         case 'vader_analysis':
                             description = 'VADER Analysis is part of a so-called NLP (Natural Language Processing)-library.' +
                                 ' A library is a collection of code already written by someone else, in this case to analyze' +

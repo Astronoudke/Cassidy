@@ -5,12 +5,14 @@ from nltk.tokenize import sent_tokenize
 from rouge import Rouge
 from fuzzywuzzy import fuzz
 import sys
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from A_DataCollectors.ScientificLiteratureCollector.scientific_literature_collector import ScientificLiteratureCollector
-from C_DataProcessors.text_preprocessor import TextPreprocessor
-from D_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
-from F_UserInterface.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
+from B_DataProcessors.text_preprocessor import TextPreprocessor
+from C_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
+from E_UserInterface.ApplicationManager.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
 
 rouge = Rouge()
 
@@ -24,8 +26,8 @@ def similar_sentences_count(summarizer_sentences, researcher_sentences, threshol
     return count
 
 # Fetch the PDF files and corresponding text files.
-papers_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/F_Evaluate/Summarization/datasets/manual/papers'
-sentences_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/F_Evaluate/Summarization/datasets/manual/sentences'
+papers_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/E_Evaluate/Summarization/datasets/manual/papers'
+sentences_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/E_Evaluate/Summarization/datasets/manual/sentences'
 file_names = [name[:-4] for name in os.listdir(papers_dir) if name.endswith('.pdf')]
 
 for file_name in file_names:
@@ -49,7 +51,7 @@ for file_name in file_names:
 
     # Summarize data
     es = ExtractiveSummarizer(all_sentences)
-    summary = es.summarize('lead_3', top_n=10, order_by_rank=False)
+    summary = es.summarize('bertsum', top_n=10, order_by_rank=False)
 
     # filter out sentences less than four words long
     summary = '. '.join(sentence for sentence in summary.split('. ') if len(sentence.split()) >= 4)
@@ -67,12 +69,7 @@ for file_name in file_names:
     similar_count = similar_sentences_count(auto_summary_sentences, researcher_summary_sentences)
     print(f"Number of similar sentences for {file_name}: {similar_count}")
 
+    # Compute ROUGE scores
     rouge_scores = rouge.get_scores(summary, researcher_summary)
 
-    avg_rouge_score = (
-                              rouge_scores[0]['rouge-1']['f'] +
-                              rouge_scores[0]['rouge-2']['f'] +
-                              rouge_scores[0]['rouge-l']['f']
-                      ) / 3.0
-
-    print(f"Average ROUGE scores for {file_name}: {avg_rouge_score}")
+    print(f"ROUGE scores for {file_name}:", rouge_scores)
