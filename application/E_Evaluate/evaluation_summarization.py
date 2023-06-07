@@ -5,12 +5,14 @@ from nltk.tokenize import sent_tokenize
 from rouge import Rouge
 from fuzzywuzzy import fuzz
 import sys
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from A_DataCollectors.ScientificLiteratureCollector.scientific_literature_collector import ScientificLiteratureCollector
-from C_DataProcessors.text_preprocessor import TextPreprocessor
-from D_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
-from F_UserInterface.ApplicationManager.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
+from B_DataProcessors.text_preprocessor import TextPreprocessor
+from C_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
+from E_UserInterface.ApplicationManager.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
 
 rouge = Rouge()
 
@@ -24,8 +26,8 @@ def similar_sentences_count(summarizer_sentences, researcher_sentences, threshol
     return count
 
 # Fetch the PDF files and corresponding text files.
-papers_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/F_Evaluate/Summarization/datasets/manual/papers'
-sentences_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/F_Evaluate/Summarization/datasets/manual/sentences'
+papers_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/E_Evaluate/Summarization/datasets/manual/papers'
+sentences_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/E_Evaluate/Summarization/datasets/manual/sentences'
 file_names = [name[:-4] for name in os.listdir(papers_dir) if name.endswith('.pdf')]
 
 for file_name in file_names:

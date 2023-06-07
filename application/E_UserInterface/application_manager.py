@@ -1,13 +1,15 @@
 import sys
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\Cassidy\\application')
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from A_DataCollectors.ScientificLiteratureCollector.scientific_literature_collector import ScientificLiteratureCollector
 from A_DataCollectors.ForumCollector.forum_collector import ForumCollector
 from A_DataCollectors.ForumCollector.forum_application import ForumApplication
-from C_DataProcessors.text_preprocessor import TextPreprocessor
-from D_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
-from D_Analyzers.Relation_Extraction.relation_extractor import RelationExtractor
-from D_Analyzers.Sentiment_Analysis.sentiment_analyzer import SentimentAnalyzer
+from B_DataProcessors.text_preprocessor import TextPreprocessor
+from C_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
+from C_Analyzers.Relation_Extraction.relation_extractor import RelationExtractor
+from C_Analyzers.Sentiment_Analysis.sentiment_analyzer import SentimentAnalyzer
 
 
 class ScientificLiteratureAnalyzer:

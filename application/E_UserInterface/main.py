@@ -7,9 +7,11 @@ from spacy.lang.en.stop_words import STOP_WORDS
 from nltk.tokenize import sent_tokenize
 
 import sys
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\Cassidy\\application')
+from pathlib import Path
 
-from D_Analyzers.Summarization.functions import RelevanceScores
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from C_Analyzers.Summarization.functions import RelevanceScores
 from E_UserInterface.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
 
 app = Flask(__name__)

@@ -4,9 +4,10 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import tensorflow_datasets as tfds
+from pathlib import Path
 
-sys.path.append('C:\\Users\\noudy\\PycharmProjects\\Cassidy\\application')
-from D_Analyzers.Sentiment_Analysis.sentiment_analyzer import SentimentAnalyzer
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from C_Analyzers.Sentiment_Analysis.sentiment_analyzer import SentimentAnalyzer
 
 # Load the IMDB dataset
 dataset = tfds.load(name="imdb_reviews")

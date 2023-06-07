@@ -131,6 +131,7 @@
                 <p>Model:</p>
                 <select name="sentiment_model" onchange="updateModelInfo()">
                     <option value="textblob_analysis">TextBlob Analysis</option>
+                    <option value="vader_analysis">VADER Analysis</option>
                     <!-- Add more options as needed -->
                 </select>
             </div>
@@ -316,6 +317,16 @@
                             description = 'TextBlob Analysis is part of a so-called NLP (Natural Language Processing)-library.' +
                                 ' A library is a collection of code already written by someone else, in this case to analyze' +
                                 ' text. TextBlob is a library that is able to analyze text and determine the sentiment' +
+                                ' (positive or negative) of a text.';
+                            accuracy = '3';
+                            speed = '3';
+                            usefulness = '3';
+                            break;
+
+                        case 'vader_analysis':
+                            description = 'VADER Analysis is part of a so-called NLP (Natural Language Processing)-library.' +
+                                ' A library is a collection of code already written by someone else, in this case to analyze' +
+                                ' text. VADER is part of the NLTK-library, that is able to analyze text and determine the sentiment' +
                                 ' (positive or negative) of a text.';
                             accuracy = '3';
                             speed = '3';
