@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from .functions import obtain_title
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
@@ -33,6 +34,9 @@ class ScientificLiteratureAnalyzer:
         preprocessor = TextPreprocessor(summarization_steps)
         preprocessed_text = preprocessor.preprocess_grobid(text)
 
+        # Obtain title
+        title = obtain_title(preprocessed_text['title'])
+
         # Consolidate all sentences in one list
         all_sentences = []
         for header, sentences in preprocessed_text.items():
@@ -45,7 +49,10 @@ class ScientificLiteratureAnalyzer:
         # filter out sentences less than four words long
         summary = [sentence for sentence in summary.split('. ') if len(sentence.split()) >= 4]
 
-        return summary
+        return {
+            "title": title,
+            "summary": summary
+        }
 
     def relation_extractor(self, model, preprocessing_steps=[]):
         # Collect data
@@ -56,7 +63,13 @@ class ScientificLiteratureAnalyzer:
         relation_steps = ['clean_data']
         preprocessor = TextPreprocessor(relation_steps)
         preprocessed_text = preprocessor.preprocess_grobid(text)
+        # Obtain title
+        print(preprocessed_text)
+        title = obtain_title(preprocessed_text['title'])
+
+        # Add text of all sections to one string
         preprocessed_text = preprocessor.concatenate_sections_grobid(preprocessed_text)
+
 
         relation_extraction_steps = preprocessing_steps
         relation_preprocessor = TextPreprocessor(relation_extraction_steps)
@@ -66,7 +79,11 @@ class ScientificLiteratureAnalyzer:
         relation_extractor = RelationExtractor(new_text)
         relations = relation_extractor.extract(model)
 
-        return relations
+        return {
+            "title": title,
+            "relations": relations[0],
+            "visualization": relations[1]
+        }
 
     def sentiment_analysis(self, model, preprocessing_steps=[]):
         # Collect data
@@ -75,16 +92,21 @@ class ScientificLiteratureAnalyzer:
 
         # Preprocess data
         sentiment_preprocessor = TextPreprocessor(preprocessing_steps)
-        preprocessed_data = sentiment_preprocessor.preprocess_grobid(text)
-        print(preprocessed_data)
+        preprocessed_text = sentiment_preprocessor.preprocess_grobid(text)
 
+        # Obtain title
+        title = obtain_title(preprocessed_text['title'])
+
+        # Analyze the data
         new_dict = {}
-        for header, text in preprocessed_data.items():
+        for header, text in preprocessed_text.items():
             sa = SentimentAnalyzer(text)
             new_dict[header] = sa.analyze(model)
 
-        print(new_dict)
-        return new_dict
+        return {
+            "title": title,
+            "sentiment": new_dict
+        }
 
 
 class ForumAnalyzer:
@@ -117,6 +139,8 @@ class ForumAnalyzer:
         summarization_steps = preprocessing_steps
         preprocessor = TextPreprocessor(summarization_steps)
         preprocessed_text = preprocessor.preprocess_forum_discussion(self.collected_messages)
+
+        print(preprocessed_text)
 
         # Summarize data
         new_dict = {}

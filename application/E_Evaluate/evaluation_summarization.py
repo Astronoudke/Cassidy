@@ -12,7 +12,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from A_DataCollectors.ScientificLiteratureCollector.scientific_literature_collector import ScientificLiteratureCollector
 from B_DataProcessors.text_preprocessor import TextPreprocessor
 from C_Analyzers.Summarization.extractive_summarizer import ExtractiveSummarizer
-from E_UserInterface.ApplicationManager.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
+from D_UserInterface.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
 
 rouge = Rouge()
 
@@ -26,8 +26,9 @@ def similar_sentences_count(summarizer_sentences, researcher_sentences, threshol
     return count
 
 # Fetch the PDF files and corresponding text files.
-papers_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/E_Evaluate/Summarization/datasets/manual/papers'
-sentences_dir = 'C:/Users/noudy/PycharmProjects/Cassidy/application/E_Evaluate/Summarization/datasets/manual/sentences'
+current_dir = os.path.dirname(os.path.abspath(__file__))
+papers_dir = os.path.join(current_dir, 'datasets', 'manual', 'papers')
+sentences_dir = os.path.join(current_dir, 'datasets', 'manual', 'sentences')
 file_names = [name[:-4] for name in os.listdir(papers_dir) if name.endswith('.pdf')]
 
 for file_name in file_names:
@@ -42,7 +43,6 @@ for file_name in file_names:
     summarization_steps = ['clean_data', 'split_sentences']
     preprocessor = TextPreprocessor(summarization_steps)
     preprocessed_text = preprocessor.preprocess_grobid(text)
-    print(preprocessed_text)
 
     # Consolidate all sentences in one list
     all_sentences = []
@@ -51,7 +51,7 @@ for file_name in file_names:
 
     # Summarize data
     es = ExtractiveSummarizer(all_sentences)
-    summary = es.summarize('bertsum', top_n=10, order_by_rank=False)
+    summary = es.summarize('position_textrank', top_n=10, order_by_rank=False)
 
     # filter out sentences less than four words long
     summary = '. '.join(sentence for sentence in summary.split('. ') if len(sentence.split()) >= 4)

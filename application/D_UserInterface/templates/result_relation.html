@@ -15,29 +15,36 @@
         <h1>Results: Relation Extraction</h1>
         <p>These results represent the top relations in the given text based on scoring. Each relation consists of two related terms. The relations are from most frequent to less frequent.</p>
 
-
-        <!-- Tab links -->
-        <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'Text')" id="defaultOpen">Text</button>
-            <button class="tablinks" onclick="openTab(event, 'Visualization')">Visualization</button>
-        </div>
-
-        <!-- Text Tab Content -->
-        <div id="Text" class="tabcontent">
-            {% for pair in result %}
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Pair Number: {{ loop.index }}</h5>
-                        <p class="card-text">First item: {{ pair[0] }}</p>
-                        <p class="card-text">Second item: {{ pair[1] }}</p>
-                    </div>
+        <!-- Bootstrap Card -->
+        <div class="card">
+            <div class="card-header">
+                {{ title }}
+            </div>
+            <div class="card-body">
+                <!-- Tab links -->
+                <div class="tab">
+                    <button class="tablinks" onclick="openTab(event, 'Text')" id="defaultOpen">Text</button>
+                    <button class="tablinks" onclick="openTab(event, 'Visualization')">Visualization</button>
                 </div>
-            {% endfor %}
-        </div>
 
-        <!-- Visualization Tab Content -->
-        <div id="Visualization" class="tabcontent">
-            <img src="data:image/png;base64,{{ plot_url }}">
+                <!-- Text Tab Content -->
+                <div id="Text" class="tabcontent">
+                    {% for pair in result %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Pair Number: {{ loop.index }}</h5>
+                                <p class="card-text">First item: {{ pair[0] }}</p>
+                                <p class="card-text">Second item: {{ pair[1] }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Visualization Tab Content -->
+                <div id="Visualization" class="tabcontent">
+                    <img src="data:image/png;base64,{{ plot_url }}">
+                </div>
+            </div>
         </div>
     </div>
 

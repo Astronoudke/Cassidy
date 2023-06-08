@@ -8,6 +8,10 @@ h1 {
     text-align: center;
 }
 
+.information-cassidy {
+    text-align: center;
+}
+
 .step {
     position: relative;
     margin: 3px;  /* was 5px */

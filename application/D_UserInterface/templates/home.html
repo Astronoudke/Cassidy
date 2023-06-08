@@ -14,6 +14,8 @@
     </div>
     <form action="/" method="post" enctype='multipart/form-data'>
         <h1>Cassidy</h1>
+        <p class="information-cassidy">Cassidy is an application which allows the user to analyze data using "text mining". Using text mining, large amounts of text can be analyzed to gain valuable insights. <br>
+        Currently, the user can choose to either analyze a scientific article in PDF-format, or an online forum discussion. </p>
             <br> Data source type:
             <i class="info-icon-input">i
                 <div class="info-modal-input">Two data source types can be selected: scientific articles and
@@ -148,7 +150,7 @@
             <div id="summary_models" class="model-select" style="display: none;">
                 <p>Model:</p>
                 <select name="summary_model" onchange="updateModelInfo()">
-                    <option value="lead_3" title="Lead3: Summarizes by selecting the first three sentences.">Lead3</option>
+                    <option value="lead_3" title="Lead3: Summarizes by selecting the first three sentences.">Lead</option>
                     <option value="position_textrank">Positional TextRank</option>
                     <option value="bertsum">BertSum</option>
                     <option value="relevance_scores">Relevance Scores (for Discussions)</option>
@@ -344,31 +346,31 @@
                     model = document.querySelector('[name=summary_model]').value;
                     switch(model) {
                         case 'lead_3':
-                            description = 'Lead3 essentially selects the first sentences of a text as a summary, assuming that' +
+                            description = 'Lead essentially selects the first sentences of a text as a summary, assuming that' +
                                 ' the first sentences contain the most important information. This leads to no necessary' +
                                 ' analysis, but it significantly diminishes its accuracy when seeking to summarize a' +
                                 ' full text.';
-                            accuracy = '2';
+                            accuracy = '5';
                             speed = '5';
                             usefulness = '1';
                             break;
                         case 'position_textrank':
-                            description = 'Position TextRank is a TextRank-based model. TextRank is a model that uses' +
-                                ' the graph-based ranking algorithm PageRank to determine the importance of a sentence' +
-                                ' in a text. Position TextRank is a TextRank-based model that also takes into account' +
-                                ' the position of a sentence in a text. This model is moderately accurate fast.';
+                            description = 'Position TextRank is a model which assigns importance scores to sentences' +
+                                ' text based on their similarity to other sentences. In the case of Position TextRank,' +
+                                ' the positon of the sentence in a text is also taken into account. This model is' +
+                                ' very useful, but also very dependent on how well the text is processed by the' +
+                                ' application.';
                             accuracy = '3';
-                            speed = '3';
-                            usefulness = '3';
+                            speed = '2';
+                            usefulness = '4';
                             break;
                         case 'bertsum':
-                            description = 'BertSum is a Transformers-based model that uses the BERT encoder to generate' +
-                                ' embeddings of the input text. These embeddings are then used by the Transformer' +
-                                ' decoder to generate a summary. This model is very accurate, but it is also very' +
-                                ' slow. It is also not very useful for short texts, as it is trained on long texts.';
-                            accuracy = '4';
+                            description = 'BertSum is a model which is trained on a large amount of data and' +
+                                ' predicts, based on this training, how important a sentence is to a text.' +
+                                ' This model is very accurate, but also very slow.';
+                            accuracy = '5';
                             speed = '1';
-                            usefulness = '5';
+                            usefulness = '3';
                             break;
                         case 'relevance_scores':
                             description = 'Relevance Scores is a model that selects the most relevant forum messages' +

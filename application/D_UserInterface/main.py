@@ -163,14 +163,17 @@ def result():
         os.remove(result_filename)
 
     if functionality == 'sentiment_analysis':
-        avg_sentiment = sum(result.values()) / len(result)
-        return render_template('result_sentiment.html', result=result, avg_sentiment=avg_sentiment)
+        results_sentiment = result['sentiment']
+        avg_sentiment = sum(results_sentiment.values()) / len(results_sentiment)
+        return render_template('result_sentiment.html', title=result['title'], result=result['sentiment'],
+                               avg_sentiment=avg_sentiment)
     elif functionality == 'summarize':
         if session['source_type'] == 'Online forum discussion':
             return render_template('result_top_messages.html', result=result)
-        return render_template('result_summary.html', result=result)
+        return render_template('result_summary.html', title=result['title'], result=result['summary'])
     elif functionality == 'relation_extractor':
-        return render_template('result_relation.html', result=result[0], plot_url=result[1])
+        return render_template('result_relation.html', title=result['title'], result=result['relations'],
+                               plot_url=result['visualization'])
     else:
         return render_template('result.html', result=result)  # fallback
 
