@@ -83,6 +83,7 @@ class ScientificLiteratureAnalyzer:
             sa = SentimentAnalyzer(text)
             new_dict[header] = sa.analyze(model)
 
+        print(new_dict)
         return new_dict
 
 

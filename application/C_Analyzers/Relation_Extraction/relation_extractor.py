@@ -3,6 +3,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import defaultdict
 from itertools import combinations
 from nltk import word_tokenize, pos_tag
+import networkx as nx
+import matplotlib.pyplot as plt
+import io
+import urllib
+import base64
 
 
 class RelationExtractor:
@@ -57,4 +62,23 @@ class RelationExtractor:
         # Return the top n bigrams
         top_bigrams = [bigram for bigram, score in sorted_scores[:top_n]]
         print(top_bigrams)
-        return top_bigrams
+
+        # Create visualization
+        G = nx.Graph()
+        G.add_edges_from(top_bigrams)
+        pos = nx.circular_layout(G)
+        nx.draw_networkx_nodes(G, pos, node_size=45)
+        nx.draw_networkx_edges(G, pos, width=1)
+        nx.draw_networkx_labels(G, pos, font_size=10, font_family='sans-serif')
+        plt.axis('off')
+
+        # Save the plot to a BytesIO object
+        img = io.BytesIO()
+        # Make size bigger
+        plt.savefig(img, format='png', dpi=300, bbox_inches='tight')
+        img.seek(0)
+
+        # Create a data URL
+        plot_url = urllib.parse.quote(base64.b64encode(img.read()).decode())
+
+        return [top_bigrams, plot_url]

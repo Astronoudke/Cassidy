@@ -12,7 +12,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from C_Analyzers.Summarization.functions import RelevanceScores
-from E_UserInterface.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
+from D_UserInterface.application_manager import ScientificLiteratureAnalyzer, ForumAnalyzer
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'uploaded_files')
@@ -170,7 +170,7 @@ def result():
             return render_template('result_top_messages.html', result=result)
         return render_template('result_summary.html', result=result)
     elif functionality == 'relation_extractor':
-        return render_template('result_relation.html', result=result)
+        return render_template('result_relation.html', result=result[0], plot_url=result[1])
     else:
         return render_template('result.html', result=result)  # fallback
 
