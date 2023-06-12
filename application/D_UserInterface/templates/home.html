@@ -11,11 +11,26 @@
 <body>
     <div id="loading-overlay">
         <div id="loading-text">Loading<span id="loading-dots"></span></div>
-    </div>
-    <form action="/" method="post" enctype='multipart/form-data'>
-        <h1>Cassidy</h1>
-        <p class="information-cassidy">Cassidy is an application which allows the user to analyze data using "text mining". Using text mining, large amounts of text can be analyzed to gain valuable insights. <br>
-        Currently, the user can choose to either analyze a scientific article in PDF-format, or an online forum discussion. </p>
+            </div>
+                <form action="/" method="post" enctype='multipart/form-data'>
+                    <div class="intro-container">
+                        <h1 id="title">Cassidy <span id="arrow">&#9660;</span></h1>
+                        <p class="information-cassidy" id="info-text" style="display: none;">
+                            Welcome to Cassidy! <br>
+
+                            This versatile application, developed by the HAN University of Applied Sciences, is designed to assist with the summarization, and analysis of textual information.<br><br>
+
+                            Our tool offers the ability to handle text from scientific articles or online forum discussions. You can insert either a link or a PDF-file containing the data, dependent on the selected data source. The application will then recommend different analysis models that are best suited to your chosen source type.<br>
+
+                            Furthermore, you can choose the functionality you desire, such as extraction, summarization, or another specific task, and our tool will provide you with the optimal pre-processing steps to achieve accurate results.<br>
+
+                            Once the analysis is complete, our application presents the summarized or extracted information in an easy-to-read format, enabling you to save time and focus on the most relevant data.<br><br>
+
+                            Please ensure to select a source type and functionality before starting the analysis. If you need help at any point, you can click on the info icons for more details.<br><br>
+
+                            Enjoy using our tool!
+                        </p>
+                    </div>
             <br> Data source type:
             <i class="info-icon-input">i
                 <div class="info-modal-input">Two data source types can be selected: scientific articles and
@@ -29,7 +44,7 @@
                 </div>
             </i>
             <br>
-            <select name="source_type" id="source_type" onchange="updateInputFields()">
+            <select name="source_type" id="source_type" class="input-container" onchange="updateInputFields()">
                 <option value="None">- - -</option>
                 <option value="Scientific article">Scientific article</option>
                 <option value="Online forum discussion">Online forum discussion</option>
@@ -48,7 +63,7 @@
                         <div class="info-modal-input">A local PDF-file containing the full-text article.</div>
                     </i><br>
                     <input type="file" id="pdf_file" name="pdf_file" accept=".pdf" onchange="checkLinkInput()"><br>
-                    <button type="button" id="clear_file">Clear</button>
+                    <button type="button" id="clear_file" title="Clears the given PDF-file.">Clear</button>
                 </div>
             </div>
             <div id="message_div">
@@ -187,8 +202,6 @@
             <!-- Other input fields -->
 
             <h3>Preprocessing</h3>
-            <p>For now, the editing of preprocessing is disabled, as the code is currently in a PoC version and too unstable to run different sequences of preprocessing.</p>
-
             <div id="sortable-container">
 
                 <div id="preprocessing_steps" class="connectedSortable">
@@ -535,6 +548,20 @@
 
         $(document).click(function() {
             $(".info-modal-input").hide();
+        });
+
+        $(document).ready(function(){
+            $("#title").click(function(){
+                $("#info-text").slideToggle("slow", function() {
+                    if ($("#info-text").is(":visible")) {
+                        // If the text is visible, rotate arrow up
+                        $("#arrow").css("transform", "rotate(180deg)");
+                    } else {
+                        // If the text is not visible, rotate arrow down
+                        $("#arrow").css("transform", "rotate(0deg)");
+                    }
+                });
+            });
         });
 
         // Logo animation
